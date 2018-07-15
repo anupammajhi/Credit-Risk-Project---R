@@ -40,17 +40,3 @@ default_rate
 
 
 #== Checking for Missing Values
-
-plot_missing(dem)
-
-knitr::kable(sort(sapply(dem, function(x) sum(is.na(x))), decreasing = T))
-
-# Number of NA in Demographic Data
-
-# |                                            |    x|
-# |:-------------------------------------------|----:|
-# |Performance.Tag                             | 1425|
-# |Education                                   |  119|
-# |Profession                                  |   14|
-# |Type.of.residence                           |    8|
-# |Marital.Status..at.the.time.of.application. |    6|
