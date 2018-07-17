@@ -264,3 +264,68 @@ full_clean$Presence.of.open.home.loan <- as.factor(full_clean$Presence.of.open.h
 
 #------------------------------------------------------------------
 
+
+# Indices with Performance tag as NA
+full_clean_Tag_NA_indices <- which(is.na(full_clean$Performance.Tag))
+dem_clean_Tag_NA_indices <- which(is.na(dem_clean$Performance.Tag))
+
+# creating copy of cleaned data
+full_data <- full_clean
+dem_data <- dem_clean
+
+# converting Performance Tag to 1 where NA assuming they were rejected at the application stage of CC request and are potential defaulters
+# This is done for WOE since WOE is done on Dichotomous dependent variable
+
+full_data[full_clean_Tag_NA_indices,"Performance.Tag"] <- 1
+dem_data[dem_clean_Tag_NA_indices,"Performance.Tag"] <- 1
+
+
+
+full_data$Performance.Tag <- as.factor(full_data$Performance.Tag)
+dem_data$Performance.Tag <- as.factor(dem_data$Performance.Tag)
+
+#==========================================================================================
+
+#-------------------------------------
+#    USING WOE AND IV
+#-------------------------------------
+
+
+# Using WOE to impute missing values. This will take care of the remaining outlier behaviors also.
+
+full_woe_data <- woe.binning(full_data, target.var = 'Performance.Tag', pred.var = full_data)
+
+# Now lets look at the IV plot to determine the  variables to be included in the model.
+tabulate.binning <- woe.binning.table(full_woe_data)
+tabulate.binning[[20]]['IV']
+
+tabulate.binning
+capture.output(tabulate.binning, file = "Woe Tables Combined.txt")
+
+IV_tables <- data.frame(unlist(lapply(tabulate.binning, function(x) tail(x$IV,1))))
+colnames(IV_tables) <- 'IV'
+IV_tables$Variable <- rownames(IV_tables)
+rownames(IV_tables) <- NULL
+
+IV_tables$Variable <- substring(IV_tables$Variable,14)
+
+
+plotFrame1 <- IV_tables[order(-as.numeric(IV_tables$IV)), ]
+plotFrame1$Variable <- factor(plotFrame1$Variable,levels = plotFrame1$Variable[order(-as.numeric(IV_tables$IV))])
+
+demo_iv_plot<-ggplot(plotFrame1, aes(x = Variable, y = as.numeric(as.character(IV)))) +
+  geom_bar(width = .35, stat = "identity", color = "lightblue", fill = "lightblue") +
+  ggtitle("INFORMATION VALUE ") +
+  theme_bw() +
+  theme(plot.title = element_text(size = 20, face = 'bold', color= 'darkgrey', hjust = 0.5)) +
+  theme(axis.text.x = element_text( size = 10, angle = 90)) +
+  geom_hline(yintercept=0.02, linetype="dashed", color = "red", size = 1) +
+  labs(y="IV")
+demo_iv_plot
+
+write.csv(plotFrame1, "IV tables Combined.csv")
+
+
+
+# We will remove variables with IV value lower than 0.02, except Application ID
+
