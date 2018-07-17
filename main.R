@@ -314,18 +314,3 @@ plotFrame1 <- IV_tables[order(-as.numeric(IV_tables$IV)), ]
 plotFrame1$Variable <- factor(plotFrame1$Variable,levels = plotFrame1$Variable[order(-as.numeric(IV_tables$IV))])
 
 demo_iv_plot<-ggplot(plotFrame1, aes(x = Variable, y = as.numeric(as.character(IV)))) +
-  geom_bar(width = .35, stat = "identity", color = "lightblue", fill = "lightblue") +
-  ggtitle("INFORMATION VALUE ") +
-  theme_bw() +
-  theme(plot.title = element_text(size = 20, face = 'bold', color= 'darkgrey', hjust = 0.5)) +
-  theme(axis.text.x = element_text( size = 10, angle = 90)) +
-  geom_hline(yintercept=0.02, linetype="dashed", color = "red", size = 1) +
-  labs(y="IV")
-demo_iv_plot
-
-write.csv(plotFrame1, "IV tables Combined.csv")
-
-
-
-# We will remove variables with IV value lower than 0.02, except Application ID
-
