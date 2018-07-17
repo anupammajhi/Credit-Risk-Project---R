@@ -181,3 +181,86 @@ min_age
 full_clean <- full_clean[-which(full_clean$Age < min_age),]
 dem_clean <- dem_clean[-which(dem_clean$Age < min_age),]
 
+summary(full_clean$Age)
+summary(dem_clean$Age)
+
+
+#==== No. of dependents variable
+
+summary(full_clean$No.of.dependents)
+
+# Converting age to factor
+
+full_clean$No.of.dependents <- as.factor(full_clean$No.of.dependents)
+dem_clean$No.of.dependents <- as.factor(dem_clean$No.of.dependents)
+
+summary(full_clean$No.of.dependents)
+
+
+#==== INCOME variable
+
+summary(full_clean$Income)
+
+boxplot(full_clean$Income)
+
+quantile(full_clean$Income,seq(0,1,0.01))
+
+full_clean$Income[which(full_clean$Income <= 0)]
+
+# There are negative values and 0, removing those rows
+
+# As we can see, there are rows that have either 0 or -0.5 as Income. This has to be a data entry error.
+# We will be removing these rows as they do not add value.
+
+full_clean <- full_clean[-which(full_clean$Income <= 0),]
+dem_clean <- dem_clean[-which(dem_clean$Income <= 0),]
+
+summary(full_clean$Income)
+
+
+
+#==== EDUCATION variable
+
+summary(full_clean$Education)
+# Variable EDUCATION has a significant number of Missing Values 
+# which will be imputed later using WOE
+
+
+
+#==== PROFESSION variable
+
+summary(full_clean$Profession)
+
+
+summary(full_clean)
+
+
+#==== Variables with categorical values
+# Converting to factor
+
+# No.of.months.in.current.residence
+# No.of.months.in.current.company
+# No.of.times.90.DPD.or.worse.in.last.6.months
+# No.of.times.60.DPD.or.worse.in.last.6.months
+# No.of.times.30.DPD.or.worse.in.last.6.months
+# No.of.times.90.DPD.or.worse.in.last.12.months
+# No.of.times.60.DPD.or.worse.in.last.12.months
+# No.of.times.30.DPD.or.worse.in.last.12.months
+# No.of.trades.opened.in.last.6.months
+# No.of.trades.opened.in.last.12.months
+# No.of.PL.trades.opened.in.last.6.months
+# No.of.PL.trades.opened.in.last.12.months
+# No.of.Inquiries.in.last.6.months..excluding.home...auto.loans.
+# No.of.Inquiries.in.last.12.months..excluding.home...auto.loans.
+# Total.No.of.Trades
+
+# Presence.of.open.auto.loan
+full_clean$Presence.of.open.auto.loan <- as.factor(full_clean$Presence.of.open.auto.loan)
+
+# Presence.of.open.home.loan
+full_clean$Presence.of.open.home.loan <- as.factor(full_clean$Presence.of.open.home.loan)
+
+
+
+#------------------------------------------------------------------
+
