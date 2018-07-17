@@ -123,3 +123,61 @@ full_clean <- full_join(dem_clean,cred_clean,by=c("Application.ID","Performance.
 # We will not be removing the Application ID column as it will be vital for future analysis
 
 # NOTE : We will use the same cleaning process for demographic data as well
+
+
+summary(full_clean)
+
+knitr::kable(sort(sapply(full_clean, function(x) sum(is.na(x))), decreasing = T))
+
+# NA values in the combined dataset
+# |                                                                |    x|
+# |:---------------------------------------------------------------|----:|
+# |Performance.Tag                                                 | 1425|
+# |Avgas.CC.Utilization.in.last.12.months                          | 1058|
+# |Presence.of.open.home.loan                                      |  272|
+# |Outstanding.Balance                                             |  272|
+# |Education                                                       |  119|
+# |Profession                                                      |   14|
+# |Type.of.residence                                               |    8|
+# |Marital.Status..at.the.time.of.application.                     |    6|
+# |No.of.dependents                                                |    3|
+# |Gender                                                          |    2|
+# |No.of.trades.opened.in.last.6.months                            |    1|
+
+
+# NOTE : FOR EVERY VARIABLE WITH LESS THAN 20 MISSING VALUES, WE WILL REMOVE THE MISSING VALUE ROWS. 
+#        FOR >20 NA's, WE WILL IMPUTE USING WOE.
+
+# Removing rows as mentioned above
+full_clean <- full_clean[-which(is.na(full_clean$No.of.trades.opened.in.last.6.months)
+                                | is.na(full_clean$Gender)
+                                | is.na(full_clean$No.of.dependents)
+                                | is.na(full_clean$Marital.Status..at.the.time.of.application.)
+                                | is.na(full_clean$Type.of.residence)
+                                | is.na(full_clean$Profession)),]
+
+
+dem_clean <- dem_clean[-which(is.na(dem_clean$Gender)
+                              | is.na(dem_clean$No.of.dependents)
+                              | is.na(dem_clean$Marital.Status..at.the.time.of.application.)
+                              | is.na(dem_clean$Type.of.residence)
+                              | is.na(dem_clean$Profession)),]
+
+
+summary(dem_clean)
+summary(full_clean)
+
+#==== AGE variable
+
+boxplot(full_clean$Age)
+
+# There are outliers towards lower ages
+# We will remove rows with age lower than lower whisker
+
+min_age <- quantile(full_clean$Age)[2] - 1.5 * IQR(full_clean$Age)
+min_age 
+# 13 years
+
+full_clean <- full_clean[-which(full_clean$Age < min_age),]
+dem_clean <- dem_clean[-which(dem_clean$Age < min_age),]
+
