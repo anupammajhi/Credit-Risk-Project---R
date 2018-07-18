@@ -451,3 +451,76 @@ plot_histogram(dem_data)
 plot_density(full_data,  fill = "pink", alpha = 0.5)
 plot_density(dem_data, fill = "yellow", alpha = 0.5)
 
+
+
+#====  Multivariate Analysis
+
+cormat_full <- round(cor(sapply(full_approves_woe[!colnames(full_approves_woe) %in% c("Application.ID")],as.numeric)),2)
+cormat_dem <- round(cor(sapply(dem_approves_woe[!colnames(dem_approves_woe) %in% c("Application.ID")],as.numeric)),2)
+
+# Get upper and lower triangle of the correlation matrix
+
+get_upper_tri <- function(cormat){
+  cormat[lower.tri(cormat)]<- NA
+  return(cormat)
+}
+
+get_lower_tri<-function(cormat){
+  cormat[upper.tri(cormat)] <- NA
+  return(cormat)
+}
+
+
+reorder_cormat <- function(cormat){
+  # Use correlation between variables as distance
+  dd <- as.dist((1-cormat)/2)
+  hc <- hclust(dd)
+  cormat <-cormat[hc$order, hc$order]
+}
+
+
+cormat_full <- reorder_cormat(cormat_full)
+cormat_dem <- reorder_cormat(cormat_dem)
+
+full_upper_tri <- get_upper_tri(cormat_full)
+full_melted_cormat <- melt(full_upper_tri, na.rm = TRUE)
+
+dem_upper_tri <- get_upper_tri(cormat_dem)
+dem_melted_cormat <- melt(dem_upper_tri, na.rm = TRUE)
+
+
+ggplot(full_melted_cormat, aes(Var2, Var1, fill = value))+
+  geom_tile(color = "white")+
+  scale_fill_gradient2(low = "red", high = "green", mid = "white", 
+                       midpoint = 0, limit = c(-1,1), space = "Lab") +
+  theme_minimal()+ 
+  theme(axis.text.x = element_blank())+
+  coord_fixed()+
+  geom_text(aes(Var2, Var1, label = value), color = "black", size = 4) +
+  theme(
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.border = element_blank(),
+    panel.background = element_blank(),
+    axis.ticks = element_blank(),
+    legend.justification = c(1, 0),
+    legend.position = c(0.6, 0.7),
+    legend.direction = "horizontal")+
+  guides(fill = guide_colorbar(barwidth = 7, barheight = 1,
+                               title.position = "top", title.hjust = 0.5)) + 
+  scale_y_discrete(position = "right")
+
+# For the full dataset we see that there is correlation between DPD's, which is expected
+# We have similar correlations among PL Trades, Inquiries.
+
+
+ggplot(dem_melted_cormat, aes(Var2, Var1, fill = value))+
+  geom_tile(color = "white")+
+  scale_fill_gradient2(low = "red", high = "green", mid = "white", 
+                       midpoint = 0, limit = c(-1,1), space = "Lab") +
+  theme_minimal()+ 
+  theme(axis.text.x = element_blank())+
+  coord_fixed()+
+  geom_text(aes(Var2, Var1, label = value), color = "black", size = 4) +
+  theme(
