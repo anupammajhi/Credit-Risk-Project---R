@@ -314,3 +314,74 @@ plotFrame1 <- IV_tables[order(-as.numeric(IV_tables$IV)), ]
 plotFrame1$Variable <- factor(plotFrame1$Variable,levels = plotFrame1$Variable[order(-as.numeric(IV_tables$IV))])
 
 demo_iv_plot<-ggplot(plotFrame1, aes(x = Variable, y = as.numeric(as.character(IV)))) +
+  geom_bar(width = .35, stat = "identity", color = "lightblue", fill = "lightblue") +
+  ggtitle("INFORMATION VALUE ") +
+  theme_bw() +
+  theme(plot.title = element_text(size = 20, face = 'bold', color= 'darkgrey', hjust = 0.5)) +
+  theme(axis.text.x = element_text( size = 10, angle = 90)) +
+  geom_hline(yintercept=0.02, linetype="dashed", color = "red", size = 1) +
+  labs(y="IV")
+demo_iv_plot
+
+write.csv(plotFrame1, "IV tables Combined.csv")
+
+
+
+# We will remove variables with IV value lower than 0.02, except Application ID
+
+full_data_low_IV <- as.character(full_woe_data[which(full_woe_data[,3] <= 0.02),1])
+full_data <- full_data[,-which(colnames(full_data) %in% full_data_low_IV[!full_data_low_IV %in% c("Application.ID")])]
+
+full_woe_data <- woe.binning(full_data, target.var = 'Performance.Tag', pred.var = full_data)
+
+
+#woe.binning.plot(full_woe_data)
+
+full_woe_data_deploy <- woe.binning.deploy(full_data,full_woe_data)
+
+full_woe_data_deploy_imputed <- woe.binning.deploy(full_data, full_woe_data, add.woe.or.dum.var = 'woe')
+
+
+
+# Using WOE on Demographic data
+
+dem_woe_data <- woe.binning(dem_data, target.var = 'Performance.Tag', pred.var = dem_data)
+
+
+
+
+#Now lets look at the IV plot to determine the  variables to be included in the model.
+tabulate.binning_dem <- woe.binning.table(dem_woe_data)
+tabulate.binning_dem[[3]]['IV']
+
+tabulate.binning_dem
+capture.output(tabulate.binning_dem, file = "Woe Tables Demographic.txt")
+
+IV_tables <- data.frame(unlist(lapply(tabulate.binning_dem, function(x) tail(x$IV,1))))
+colnames(IV_tables) <- 'IV'
+IV_tables$Variable <- rownames(IV_tables)
+rownames(IV_tables) <- NULL
+
+IV_tables$Variable <- substring(IV_tables$Variable,14)
+
+
+plotFrame1 <- IV_tables[order(-as.numeric(IV_tables$IV)), ]
+plotFrame1$Variable <- factor(plotFrame1$Variable,levels = plotFrame1$Variable[order(-as.numeric(IV_tables$IV))])
+
+demo_iv_plot<-ggplot(plotFrame1, aes(x = Variable, y = as.numeric(as.character(IV)))) +
+  geom_bar(width = .35, stat = "identity", color = "lightblue", fill = "lightblue") +
+  ggtitle("INFORMATION VALUE ") +
+  theme_bw() +
+  theme(plot.title = element_text(size = 20, face = 'bold', color= 'darkgrey', hjust = 0.5)) +
+  theme(axis.text.x = element_text( size = 10, angle = 90)) +
+  geom_hline(yintercept=0.02, linetype="dashed", color = "red", size = 1) +
+  labs(y="IV")
+demo_iv_plot
+write.csv(plotFrame1, "IV tables Demographic.csv")
+
+# variables with low IV value (below 0.02) idealy have low or no predictive power and ideally can be gotten rid of
+
+
+
+# We will remove variables with IV value lower than 0.02, except Application ID
+dem_data_low_IV <- as.character(dem_woe_data[which(dem_woe_data[,3] <= 0.02),1])
