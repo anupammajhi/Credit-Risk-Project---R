@@ -555,3 +555,71 @@ p2 <- dem_clean %>% filter(Performance.Tag == 1) %>%
   ggplot(aes(Income, fill = as.factor(Performance.Tag) )) +
   geom_histogram(binwidth = 5) +
   xlab("Income of the Applicant") +
+  scale_fill_discrete(name = "Performance") +
+  theme(legend.position = "none")
+
+p3 <- dem_clean %>% filter(Performance.Tag == 1) %>%
+  ggplot(aes(No.of.months.in.current.residence, fill = as.factor(Performance.Tag) )) +
+  geom_histogram(binwidth = 25) +
+  xlab("Number of Months in Current Residence") +
+  scale_fill_discrete(name = "Performance") +
+  theme(legend.position = "none")
+
+
+p4 <- full_clean %>% filter(Performance.Tag == 1) %>%
+  ggplot(aes(Avgas.CC.Utilization.in.last.12.months, fill = as.factor(Performance.Tag) )) +
+  geom_histogram(binwidth = 10) +
+  xlab("Average Credit Card Utilization in 12 Months") +
+  scale_fill_discrete(name = "Performance") +
+  theme(legend.position = "none")
+
+
+p5 <- full_clean %>% filter(Performance.Tag == 1) %>%
+  ggplot(aes(No.of.times.30.DPD.or.worse.in.last.12.months, fill = as.factor(Performance.Tag) )) +
+  geom_histogram() +
+  xlab("Number of 30 Days Past Dues in 12 months") +
+  scale_fill_discrete(name = "Performance") +
+  theme(legend.position = "none")
+p5
+
+grid.arrange(p1, p2, p3, p4)
+
+# A person with higher number of months in current company - lower the chances of defaulting.
+# People with higher income tends to have low default rates.
+# People who are in same residence for very few months have high chances of defaulting.
+# Frequent Credit Card users tends to default lesser.
+
+
+#------------------------------------------------------------------------------------------------------------
+
+#------------------------------------
+#==== Preparing TRAIN and TEST Data
+#------------------------------------
+
+
+
+set.seed(421)
+
+
+full_sample_70 <- sample(nrow(full_approves_woe),0.7*nrow(full_approves_woe),replace = F)
+dem_sample_70 <- sample(nrow(dem_approves_woe),0.7*nrow(dem_approves_woe),replace = F)
+
+# preparing training dataset from the customers who were approved for credit
+full_train <- full_approves_woe[full_sample_70,]
+dem_train <- dem_approves_woe[dem_sample_70,]
+
+# Separating the Application IDs from Train Data
+full_train_App_ID <- full_train$Application.ID
+dem_train_App_ID <- dem_train$Application.ID
+
+full_train$Application.ID <- NULL
+dem_train$Application.ID <- NULL
+
+
+# preparing test dataset from approved customers and also combined approved + rejected customers
+full_test <- full_approves_woe[-full_sample_70,]
+dem_test <- dem_approves_woe[-dem_sample_70,]
+
+full_test_incl_rejects <- rbind(full_test,full_rejects_woe)
+dem_test_incl_rejects <- rbind(dem_test,dem_rejects_woe)
+
