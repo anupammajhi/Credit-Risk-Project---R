@@ -788,15 +788,3 @@ summary(dem_test_incl_rejects$Performance.Tag)
 # tree_pred_2_30<-ifelse(tree_pred_2_30==1,"1","0")
 # test_conf_tree_2_30<-confusionMatrix(factor(tree_pred_2_30),factor(test_results), positive  = '1')
 # test_conf_tree_2_30
-# 
-# #Random Forest:
-# library(randomForest)
-# forest_default_2_30 <- randomForest(Performance.Tag ~., data = data_smote_2_30, proximity = F, do.trace = T)
-# forest_pred_2_30<-predict(forest_default_2_30, full_test, type = "class")
-# forest_pred_2_30<-unfactor(forest_pred_2_30)
-# forest_pred_2_30<-ifelse(forest_pred_2_30==1,"1","0")
-# summary(factor(forest_pred_2_30))
-# forest_conf_tree_2_30<-confusionMatrix(factor(forest_pred_2_30),factor(test_results), positive  = '1')
-# forest_conf_tree_2_30
-# 
-# 
