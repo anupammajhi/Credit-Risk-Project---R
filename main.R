@@ -739,3 +739,64 @@ summary(dem_test_incl_rejects$Performance.Tag)
 # tree_default_2_20<-rpart(Performance.Tag~.,data=data_smote_2_20, method= "class")
 # plot(tree_default_2_20)
 # tree_pred_2_20<-predict(tree_default_2_20, full_test, type = "class")
+# tree_pred_2_20<-unfactor(tree_pred_2_20)
+# tree_pred_2_20<-ifelse(tree_pred_2_20==1,"1","0")
+# test_conf_tree_2_20<-confusionMatrix(factor(tree_pred_2_20),factor(test_results), positive  = '1')
+# test_conf_tree_2_20
+# 
+# #Random Forest:
+# library(randomForest)
+# forest_default_2_20 <- randomForest(Performance.Tag ~., data = data_smote_2_20, proximity = F, do.trace = T)
+# forest_pred_2_20<-predict(forest_default_2_20, full_test, type = "class")
+# forest_pred_2_20<-unfactor(forest_pred_2_20)
+# forest_pred_2_20<-ifelse(forest_pred_2_20==1,"1","0")
+# summary(factor(forest_pred_2_20))
+# forest_conf_tree_2_20<-confusionMatrix(factor(forest_pred_2_20),factor(test_results), positive  = '1')
+# forest_conf_tree_2_20
+# 
+# 
+# #Running to check if 30% of the minority class in the balanced training dataframe will be suitable.
+# set.seed(seed)
+# data_smote_2_30 <- SMOTE(Performance.Tag ~. , data = full_train, perc.over = 200, perc.under = 350)
+# summary(data_smote_2_30$Performance.Tag)
+# #0     1 
+# #14434  6186
+# nrow(data_smote_2_30) #20620
+# #Hence the minority class percentage is 30%
+# #Running loagistic regression with default parameters.
+# logistic_default_2_30 <- glm(Performance.Tag ~.,
+#                              data = data_smote_2_30,
+#                              family = 'binomial')
+# 
+# 
+# 
+# prediction_logistic_2_30_probs <- predict(logistic_default_2_30, full_test, type = "response")
+# prediction_logistic_2_30_probs_summary<-summary(prediction_logistic_2_30_probs)
+# #Setting the cutoff at median.
+# prediction_logistic_2_30 <- ifelse(prediction_logistic_2_30_probs >=prediction_logistic_2_30_probs_summary[3], '1', '0')
+# test_results <- as.character(full_test$Performance.Tag)
+# test_conf_logistic_2_30 <- confusionMatrix(factor(prediction_logistic_2_30), factor(test_results), positive = '1')
+# test_conf_logistic_2_30
+# 
+# #Decision Trees
+# library(rpart)
+# library(varhandle)
+# tree_default_2_30<-rpart(Performance.Tag~.,data=data_smote_2_30, method= "class")
+# plot(tree_default_2_30)
+# tree_pred_2_30<-predict(tree_default_2_30, full_test, type = "class")
+# tree_pred_2_30<-unfactor(tree_pred_2_30)
+# tree_pred_2_30<-ifelse(tree_pred_2_30==1,"1","0")
+# test_conf_tree_2_30<-confusionMatrix(factor(tree_pred_2_30),factor(test_results), positive  = '1')
+# test_conf_tree_2_30
+# 
+# #Random Forest:
+# library(randomForest)
+# forest_default_2_30 <- randomForest(Performance.Tag ~., data = data_smote_2_30, proximity = F, do.trace = T)
+# forest_pred_2_30<-predict(forest_default_2_30, full_test, type = "class")
+# forest_pred_2_30<-unfactor(forest_pred_2_30)
+# forest_pred_2_30<-ifelse(forest_pred_2_30==1,"1","0")
+# summary(factor(forest_pred_2_30))
+# forest_conf_tree_2_30<-confusionMatrix(factor(forest_pred_2_30),factor(test_results), positive  = '1')
+# forest_conf_tree_2_30
+# 
+# 
