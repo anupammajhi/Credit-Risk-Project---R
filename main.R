@@ -623,3 +623,60 @@ dem_test <- dem_approves_woe[-dem_sample_70,]
 full_test_incl_rejects <- rbind(full_test,full_rejects_woe)
 dem_test_incl_rejects <- rbind(dem_test,dem_rejects_woe)
 
+# Shuffling test data by row after rbind
+full_test_incl_rejects <- full_test_incl_rejects[sample(nrow(full_test_incl_rejects),replace = F),]
+dem_test_incl_rejects <- dem_test_incl_rejects[sample(nrow(dem_test_incl_rejects),replace = F),]
+
+summary(full_train$Performance.Tag)
+summary(full_test$Performance.Tag)
+
+summary(dem_train$Performance.Tag)
+summary(dem_test$Performance.Tag)
+
+summary(full_test_incl_rejects$Performance.Tag)
+summary(dem_test_incl_rejects$Performance.Tag)
+
+
+
+
+
+
+
+#----------------------------------------------------------------------------------------
+#                                   DATA MODELING
+#                                   =============
+#________________________________________________________________________________________
+
+
+# We have very less number of defaulters from analysis feasibility perspective
+# Using SMOTE(Synthetic Minority Over-Sampling Technique) in training dataset for minority over-sampling 
+
+
+# We tried running several models on default parameters to see which oversampling and undersampling values give the best results
+
+# Note : Commenting Out the trials to get optimum SMOTE parameters
+#        ---------------------------------------------------------
+
+
+# #Since the train dataframe is unbalanced, will be using SMOTE to balance the training dataframe.
+# #Running logisitc regression, decission trees and random forests with default parameters so that we can determine the 
+# #optimal amount of over sampling required for the training dataframe.
+# 
+# #I.Trying to oversample the minonity class by two fold.
+# 
+# #Running to check if 10% of the minority class in the balanced training dataframe will be suitable.
+# seed<-1234
+# set.seed(seed)
+# data_smote_2_10 <- SMOTE(Performance.Tag ~. , data = full_train, perc.over = 200, perc.under = 1350)
+# summary(data_smote_2_10$Performance.Tag)
+# #    0     1 
+# #55674  6186 
+# nrow(data_smote_2_10) #61860
+# #Hence the minority class percentage is 10%
+# 
+# #Running loagistic regression with default parameters.
+# logistic_default_2_10 <- glm(Performance.Tag ~.,
+#                              data = data_smote_2_10,
+#                              family = 'binomial')
+# 
+# 
