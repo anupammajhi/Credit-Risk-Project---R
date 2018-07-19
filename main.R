@@ -680,3 +680,75 @@ summary(dem_test_incl_rejects$Performance.Tag)
 #                              family = 'binomial')
 # 
 # 
+# 
+# prediction_logistic_2_10_probs <- predict(logistic_default_2_10, full_test, type = "response")
+# prediction_logistic_2_10_probs_summary<-summary(prediction_logistic_2_10_probs)
+# #Setting the cutoff at median.
+# prediction_logistic_2_10 <- ifelse(prediction_logistic_2_10_probs >=prediction_logistic_2_10_probs_summary[3], '1', '0')
+# test_results <- as.character(full_test$Performance.Tag)
+# test_conf_logistic_2_10 <- confusionMatrix(factor(prediction_logistic_2_10), factor(test_results), positive = '1')
+# test_conf_logistic_2_10
+# #summary(test)
+# 
+# library(rpart)
+# library(varhandle)
+# tree_default_2_10<-rpart(Performance.Tag~.,data=data_smote_2_10, method= "class")
+# plot(tree_default_2_10)
+# tree_pred_2_10<-predict(tree_default_2_10, full_test, type = "class")
+# tree_pred_2_10<-unfactor(tree_pred_2_10)
+# tree_pred_2_10<-ifelse(tree_pred_2_10==1,"1","0")
+# test_conf_tree_2_10<-confusionMatrix(factor(tree_pred_2_10),factor(test_results), positive  = '1')
+# test_conf_tree_2_10
+# 
+# #Random Forest:
+# library(randomForest)
+# forest_default_2_10 <- randomForest(Performance.Tag ~., data = data_smote_2_10, proximity = F, do.trace = T)
+# forest_pred_2_10<-predict(forest_default_2_10, full_test, type = "class")
+# forest_pred_2_10<-unfactor(forest_pred_2_10)
+# forest_pred_2_10<-ifelse(forest_pred_2_10==1,"1","0")
+# summary(factor(forest_pred_2_10))
+# forest_conf_tree_2_10<-confusionMatrix(factor(forest_pred_2_10),factor(test_results), positive  = '1')
+# forest_conf_tree_2_10
+# 
+# #Running to check if 20% of the minority class in the balanced training dataframe will be suitable.
+# set.seed(seed)
+# data_smote_2_20 <- SMOTE(Performance.Tag ~. , data = full_train, perc.over = 200, perc.under = 600)
+# summary(data_smote_2_20$Performance.Tag)
+# #0       1 
+# #24744  6186 
+# nrow(data_smote_2_20) #30930
+# #Hence the minority class percentage is 20%
+# #Running loagistic regression with default parameters.
+# logistic_default_2_20 <- glm(Performance.Tag ~.,
+#                              data = data_smote_2_20,
+#                              family = 'binomial')
+# 
+# 
+# 
+# prediction_logistic_2_20_probs <- predict(logistic_default_2_20, full_test, type = "response")
+# prediction_logistic_2_20_probs_summary<-summary(prediction_logistic_2_20_probs)
+# #Setting the cutoff at median.
+# prediction_logistic_2_20 <- ifelse(prediction_logistic_2_20_probs >=prediction_logistic_2_20_probs_summary[3], '1', '0')
+# test_results <- as.character(full_test$Performance.Tag)
+# test_conf_logistic_2_20 <- confusionMatrix(factor(prediction_logistic_2_20), factor(test_results), positive = '1')
+# test_conf_logistic_2_20
+# 
+# #Decision Trees
+# library(rpart)
+# library(varhandle)
+# tree_default_2_20<-rpart(Performance.Tag~.,data=data_smote_2_20, method= "class")
+# plot(tree_default_2_20)
+# tree_pred_2_20<-predict(tree_default_2_20, full_test, type = "class")
+# tree_pred_2_20<-unfactor(tree_pred_2_20)
+# tree_pred_2_20<-ifelse(tree_pred_2_20==1,"1","0")
+# test_conf_tree_2_20<-confusionMatrix(factor(tree_pred_2_20),factor(test_results), positive  = '1')
+# test_conf_tree_2_20
+# 
+# #Random Forest:
+# library(randomForest)
+# forest_default_2_20 <- randomForest(Performance.Tag ~., data = data_smote_2_20, proximity = F, do.trace = T)
+# forest_pred_2_20<-predict(forest_default_2_20, full_test, type = "class")
+# forest_pred_2_20<-unfactor(forest_pred_2_20)
+# forest_pred_2_20<-ifelse(forest_pred_2_20==1,"1","0")
+# summary(factor(forest_pred_2_20))
+# forest_conf_tree_2_20<-confusionMatrix(factor(forest_pred_2_20),factor(test_results), positive  = '1')
