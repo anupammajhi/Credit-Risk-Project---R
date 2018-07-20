@@ -695,20 +695,3 @@ summary(dem_test_incl_rejects$Performance.Tag)
 # tree_default_2_10<-rpart(Performance.Tag~.,data=data_smote_2_10, method= "class")
 # plot(tree_default_2_10)
 # tree_pred_2_10<-predict(tree_default_2_10, full_test, type = "class")
-# tree_pred_2_10<-unfactor(tree_pred_2_10)
-# tree_pred_2_10<-ifelse(tree_pred_2_10==1,"1","0")
-# test_conf_tree_2_10<-confusionMatrix(factor(tree_pred_2_10),factor(test_results), positive  = '1')
-# test_conf_tree_2_10
-# 
-# #Random Forest:
-# library(randomForest)
-# forest_default_2_10 <- randomForest(Performance.Tag ~., data = data_smote_2_10, proximity = F, do.trace = T)
-# forest_pred_2_10<-predict(forest_default_2_10, full_test, type = "class")
-# forest_pred_2_10<-unfactor(forest_pred_2_10)
-# forest_pred_2_10<-ifelse(forest_pred_2_10==1,"1","0")
-# summary(factor(forest_pred_2_10))
-# forest_conf_tree_2_10<-confusionMatrix(factor(forest_pred_2_10),factor(test_results), positive  = '1')
-# forest_conf_tree_2_10
-# 
-# #Running to check if 20% of the minority class in the balanced training dataframe will be suitable.
-# set.seed(seed)
