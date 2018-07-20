@@ -712,18 +712,3 @@ summary(dem_test_incl_rejects$Performance.Tag)
 # 
 # #Running to check if 20% of the minority class in the balanced training dataframe will be suitable.
 # set.seed(seed)
-# data_smote_2_20 <- SMOTE(Performance.Tag ~. , data = full_train, perc.over = 200, perc.under = 600)
-# summary(data_smote_2_20$Performance.Tag)
-# #0       1 
-# #24744  6186 
-# nrow(data_smote_2_20) #30930
-# #Hence the minority class percentage is 20%
-# #Running loagistic regression with default parameters.
-# logistic_default_2_20 <- glm(Performance.Tag ~.,
-#                              data = data_smote_2_20,
-#                              family = 'binomial')
-# 
-# 
-# 
-# prediction_logistic_2_20_probs <- predict(logistic_default_2_20, full_test, type = "response")
-# prediction_logistic_2_20_probs_summary<-summary(prediction_logistic_2_20_probs)
