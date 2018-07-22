@@ -1256,3 +1256,75 @@ summary(dem_test_incl_rejects$Performance.Tag)
 # forest_default_3_70 <- randomForest(Performance.Tag ~., data = data_smote_3_70, proximity = F, do.trace = T)
 # forest_pred_3_70<-predict(forest_default_3_70, full_test, type = "class")
 # forest_pred_3_70<-unfactor(forest_pred_3_70)
+# forest_pred_3_70<-ifelse(forest_pred_3_70==1,"1","0")
+# summary(factor(forest_pred_3_70))
+# forest_conf_tree_3_70<-confusionMatrix(factor(forest_pred_3_70),factor(test_results), positive  = '1')
+# forest_conf_tree_3_70
+
+
+#NOTE : We have chosen oversampling parameter 300 and undersampling parameter 130 as optimum values for SMOTE
+
+
+full_train_smoted <- SMOTE(Performance.Tag ~. , data = full_train, perc.over = 300, perc.under = 130)
+dem_train_smoted <- SMOTE(Performance.Tag ~. , data = dem_train, perc.over = 300, perc.under = 130)
+
+summary(full_train_smoted$Performance.Tag)
+summary(dem_train_smoted$Performance.Tag)
+
+# We can see that the minority class percentage has increased and should be valuable for analysis purposes
+
+
+
+
+
+
+
+# WE WILL FIRST CREATE AND EVALUATE THE MODEL FOR DEMOGRAPHIC DATA ONLY
+
+
+#==============================================================================
+#                ANALYSING ONLY DEMOGRAPHIC DATA
+#==============================================================================
+
+
+
+#==== LOGISTIC REGRESSION : DEMOGRAPHIC DATA ====
+
+dem_logistic_model_1 <- glm(Performance.Tag ~.,
+                            data = dem_train_smoted,
+                            family = 'binomial')
+
+summary(dem_logistic_model_1)
+
+
+
+# we can see that there are no insignificant values. Hence this will be the Logistic Regression's Final model 
+
+# Since all the variables are highly significant now, hence we will take this as final logistic model
+dem_logistic_model_final <- dem_logistic_model_1
+
+
+
+
+
+#==== MODEL EVALUATION : LOGISTIC REGRESSION : DEMOGRAPHIC DATA ====
+#     ---------------------------------------------------------
+
+
+# Running the model on test data to see performance
+
+prediction_dem_logistic <- predict(dem_logistic_model_final, dem_test, type = "response")
+
+# Finding out optimal cutoff
+dem_logistic_perform_fn <- function(cutoff) 
+{
+  predicted_response <- ifelse(prediction_dem_logistic >= cutoff, "1", "0")
+  test_results <- as.character(dem_test$Performance.Tag)
+  conf <- confusionMatrix(factor(predicted_response), factor(dem_test$Performance.Tag), positive = "1")
+  acc <- conf$overall[1]
+  sens <- conf$byClass[1]
+  spec <- conf$byClass[2]
+  out <- t(as.matrix(c(sens, spec, acc))) 
+  colnames(out) <- c("sensitivity", "specificity", "accuracy")
+  return(out)
+}
