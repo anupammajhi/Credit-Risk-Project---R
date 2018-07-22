@@ -840,3 +840,81 @@ summary(dem_test_incl_rejects$Performance.Tag)
 # forest_default_2_40 <- randomForest(Performance.Tag ~., data = data_smote_2_40, proximity = F, do.trace = T)
 # forest_pred_2_40<-predict(forest_default_2_40, full_test, type = "class")
 # forest_pred_2_40<-unfactor(forest_pred_2_40)
+# forest_pred_2_40<-ifelse(forest_pred_2_40==1,"1","0")
+# summary(factor(forest_pred_2_40))
+# forest_conf_tree_2_40<-confusionMatrix(factor(forest_pred_2_40),factor(test_results), positive  = '1')
+# forest_conf_tree_2_40
+# 
+# 
+# #Running to check if 50% of the minority class in the balanced training dataframe will be suitable.
+# set.seed(seed)
+# data_smote_2_50 <- SMOTE(Performance.Tag ~. , data = full_train, perc.over = 200, perc.under = 150)
+# summary(data_smote_2_50$Performance.Tag)
+# #0    1 
+# #6186 6186
+# nrow(data_smote_2_50)   #12372
+# #Hence the minority class percentage is 50%
+# 
+# #Running loagistic regression with default parameters.
+# logistic_default_2_50 <- glm(Performance.Tag ~.,
+#                              data = data_smote_2_50,
+#                              family = 'binomial')
+# 
+# summary(logistic_default_2_50) 
+# 
+# prediction_logistic_2_50_probs <- predict(logistic_default_2_50, full_test, type = "response")
+# prediction_logistic_2_50_probs_summary<-summary(prediction_logistic_2_50_probs)
+# #Setting the cutoff at median.
+# prediction_logistic_2_50 <- ifelse(prediction_logistic_2_50_probs >=prediction_logistic_2_50_probs_summary[3], '1', '0')
+# test_results <- as.character(full_test$Performance.Tag)
+# test_conf_logistic_2_50 <- confusionMatrix(factor(prediction_logistic_2_50), factor(test_results), positive = '1')
+# test_conf_logistic_2_50
+# 
+# #Decision Trees
+# library(rpart)
+# library(varhandle)
+# tree_default_2_50<-rpart(Performance.Tag~.,data=data_smote_2_50, method= "class")
+# plot(tree_default_2_50)
+# tree_pred_2_50<-predict(tree_default_2_50, full_test, type = "class")
+# tree_pred_2_50<-unfactor(tree_pred_2_50)
+# tree_pred_2_50<-ifelse(tree_pred_2_50==1,"1","0")
+# test_conf_tree_2_50<-confusionMatrix(factor(tree_pred_2_50),factor(test_results), positive  = '1')
+# test_conf_tree_2_50
+# 
+# #Random Forest:
+# library(randomForest)
+# forest_default_2_50 <- randomForest(Performance.Tag ~., data = data_smote_2_50, proximity = F, do.trace = T)
+# forest_pred_2_50<-predict(forest_default_2_50, full_test, type = "class")
+# forest_pred_2_50<-unfactor(forest_pred_2_50)
+# forest_pred_2_50<-ifelse(forest_pred_2_50==1,"1","0")
+# summary(factor(forest_pred_2_50))
+# forest_conf_tree_2_50<-confusionMatrix(factor(forest_pred_2_50),factor(test_results), positive  = '1')
+# forest_conf_tree_2_50
+# 
+# 
+# 
+# 
+# #Running to check if 60% of the minority class in the balanced training dataframe will be suitable.
+# set.seed(seed)
+# data_smote_2_60 <- SMOTE(Performance.Tag ~. , data = full_train, perc.over = 200, perc.under = 100)
+# summary(data_smote_2_60$Performance.Tag)
+# #   0    1 
+# #4124 6186
+# nrow(data_smote_2_60)   #10310
+# #Hence the minority class percentage is 60%
+# 
+# #Running loagistic regression with default parameters.
+# logistic_default_2_60 <- glm(Performance.Tag ~.,
+#                              data = data_smote_2_60,
+#                              family = 'binomial')
+# 
+# 
+# 
+# prediction_logistic_2_60_probs <- predict(logistic_default_2_60, full_test, type = "response")
+# prediction_logistic_2_60_probs_summary<-summary(prediction_logistic_2_60_probs)
+# #Setting the cutoff at median.
+# prediction_logistic_2_60 <- ifelse(prediction_logistic_2_60_probs >=prediction_logistic_2_60_probs_summary[3], '1', '0')
+# test_results <- as.character(full_test$Performance.Tag)
+# test_conf_logistic_2_60 <- confusionMatrix(factor(prediction_logistic_2_60), factor(test_results), positive = '1')
+# test_conf_logistic_2_60
+# 
