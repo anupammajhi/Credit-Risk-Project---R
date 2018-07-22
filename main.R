@@ -918,3 +918,75 @@ summary(dem_test_incl_rejects$Performance.Tag)
 # test_conf_logistic_2_60 <- confusionMatrix(factor(prediction_logistic_2_60), factor(test_results), positive = '1')
 # test_conf_logistic_2_60
 # 
+# #Decision Trees
+# library(rpart)
+# library(varhandle)
+# tree_default_2_60<-rpart(Performance.Tag~.,data=data_smote_2_60, method= "class")
+# plot(tree_default_2_60)
+# tree_pred_2_60<-predict(tree_default_2_60, full_test, type = "class")
+# tree_pred_2_60<-unfactor(tree_pred_2_60)
+# tree_pred_2_60<-ifelse(tree_pred_2_60==1,"1","0")
+# test_conf_tree_2_60<-confusionMatrix(factor(tree_pred_2_60),factor(test_results), positive  = '1')
+# test_conf_tree_2_60
+# 
+# 
+# #Random Forest:
+# library(randomForest)
+# forest_default_2_60 <- randomForest(Performance.Tag ~., data = data_smote_2_60, proximity = F, do.trace = T)
+# forest_pred_2_60<-predict(forest_default_2_60, full_test, type = "class")
+# forest_pred_2_60<-unfactor(forest_pred_2_60)
+# forest_pred_2_60<-ifelse(forest_pred_2_60==1,"1","0")
+# summary(factor(forest_pred_2_60))
+# forest_conf_tree_2_60<-confusionMatrix(factor(forest_pred_2_60),factor(test_results), positive  = '1')
+# forest_conf_tree_2_60
+# 
+# #II. Trying to oversample the minonity class by three fold. Will be doing for three fold in detail, as the number of records
+# #    having defaulters will increase so the sensitvity could increase and the number of records will be more so the overall
+# #    accuracy could increase.
+# 
+# #Running to check if 10% of the minority class in the balanced training dataframe will be suitable.
+# set.seed(seed)
+# data_smote_3_10 <- SMOTE(Performance.Tag ~. , data = full_train, perc.over = 300, perc.under = 1200)
+# summary(data_smote_3_10$Performance.Tag)
+# #0     1 
+# #74232  8248 
+# nrow(data_smote_3_10) #82480
+# #Hence the minority class percentage is 10%
+# 
+# #Running loagistic regression with default parameters.
+# logistic_default_3_10 <- glm(Performance.Tag ~.,
+#                              data = data_smote_3_10,
+#                              family = 'binomial')
+# 
+# 
+# 
+# prediction_logistic_3_10_probs <- predict(logistic_default_3_10, full_test, type = "response")
+# prediction_logistic_3_10_probs_summary<-summary(prediction_logistic_3_10_probs)
+# #Setting the cutoff at median.
+# prediction_logistic_3_10 <- ifelse(prediction_logistic_3_10_probs >=prediction_logistic_3_10_probs_summary[3], '1', '0')
+# test_results <- as.character(full_test$Performance.Tag)
+# test_conf_logistic_3_10 <- confusionMatrix(factor(prediction_logistic_3_10), factor(test_results), positive = '1')
+# test_conf_logistic_3_10
+# 
+# #Decision Trees
+# library(rpart)
+# library(varhandle)
+# tree_default_3_10<-rpart(Performance.Tag~.,data=data_smote_3_10, method= "class")
+# plot(tree_default_3_10)
+# tree_pred_3_10<-predict(tree_default_3_10, full_test, type = "class")
+# tree_pred_3_10<-unfactor(tree_pred_3_10)
+# tree_pred_3_10<-ifelse(tree_pred_3_10==1,"1","0")
+# test_conf_tree_3_10<-confusionMatrix(factor(tree_pred_3_10),factor(test_results), positive  = '1')
+# test_conf_tree_3_10
+# 
+# #Random Forest:
+# library(randomForest)
+# forest_default_3_10 <- randomForest(Performance.Tag ~., data = data_smote_3_10, proximity = F, do.trace = T)
+# forest_pred_3_10<-predict(forest_default_3_10, full_test, type = "class")
+# forest_pred_3_10<-unfactor(forest_pred_3_10)
+# forest_pred_3_10<-ifelse(forest_pred_3_10==1,"1","0")
+# summary(factor(forest_pred_3_10))
+# forest_conf_tree_3_10<-confusionMatrix(factor(forest_pred_3_10),factor(test_results), positive  = '1')
+# forest_conf_tree_3_10
+# 
+# #Running to check if 20% of the minority class in the balanced training dataframe will be suitable.
