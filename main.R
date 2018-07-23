@@ -1401,3 +1401,82 @@ lift <- function(labels,predicted_prob,groups=10){
     mutate(Cumresp = cumsum(totalresp),Gain=Cumresp/sum(totalresp)*100,Cumlift=Gain/(bucket*(100/groups))) 
   return(gaintable)
 }
+
+dem_logistic_default_decile = lift(as.numeric(as.character(dem_test$Performance.Tag)), as.numeric(as.character(dem_logistic_predicted_response)), groups = 10)
+View(dem_logistic_default_decile)  
+
+# K Fold - Cross Validation
+cv.binary(dem_logistic_model_final, nfolds = 100)
+
+# We see that the accuracy is consistent after 100 folds, hence we conclude that the model is quite stable
+
+
+
+
+
+
+
+# For Test data including rejected applications
+#------------------------------------------------
+
+
+# Running the model on test data that includes rejected applications to see performance
+
+prediction_dem_logistic_incl_rejects <- predict(dem_logistic_model_final, dem_test_incl_rejects, type = "response")
+
+# Finding out optimal cutoff
+dem_logistic_perform_fn_incl_rejects <- function(cutoff) 
+{
+  predicted_response <- ifelse(prediction_dem_logistic_incl_rejects >= cutoff, "1", "0")
+  test_results <- as.character(dem_test_incl_rejects$Performance.Tag)
+  conf <- confusionMatrix(factor(predicted_response), factor(dem_test_incl_rejects$Performance.Tag), positive = "1")
+  acc <- conf$overall[1]
+  sens <- conf$byClass[1]
+  spec <- conf$byClass[2]
+  out <- t(as.matrix(c(sens, spec, acc))) 
+  colnames(out) <- c("sensitivity", "specificity", "accuracy")
+  return(out)
+}
+
+# Creating cutoff values from 0.01 to 0.99 for plotting and initiallizing a matrix of 1000 X 4.
+
+dem_logistic_s_incl_rejects = seq(.01,.99,length=100)
+
+dem_logistic_OUT_incl_rejects = matrix(0,100,3)
+
+
+for(i in 1:100){
+  dem_logistic_OUT_incl_rejects[i,] = dem_logistic_perform_fn_incl_rejects(dem_logistic_s_incl_rejects[i])
+}
+
+
+# plotting cutoffs 
+par(mfrow=c(1,1), mar=c(3,2,2,2)) 
+plot(dem_logistic_s_incl_rejects, dem_logistic_OUT_incl_rejects[,1],xlab="Cutoff",ylab="Value",cex.lab=1,cex.axis=1,ylim=c(0,1),type="l",lwd=2,axes=FALSE,col=2)
+axis(1,seq(0,1,length=5),seq(0,1,length=5),cex.lab=1)
+axis(2,seq(0,1,length=5),seq(0,1,length=5),cex.lab=1)
+lines(dem_logistic_s_incl_rejects,dem_logistic_OUT_incl_rejects[,2],col="darkgreen",lwd=2)
+lines(dem_logistic_s_incl_rejects,dem_logistic_OUT_incl_rejects[,3],col=4,lwd=2)
+box()
+legend(0,.50,col=c(2,"darkgreen",4,"darkred"),lwd=c(2,2,2,2),c("Sensitivity","Specificity","Accuracy"))
+
+
+dem_logistic_cutoff_incl_rejects <- dem_logistic_s_incl_rejects[which(abs(dem_logistic_OUT_incl_rejects[,1]-dem_logistic_OUT_incl_rejects[,2])<0.1)]  
+dem_logistic_cutoff_incl_rejects <- dem_logistic_cutoff_incl_rejects[length(dem_logistic_cutoff_incl_rejects)]
+dem_logistic_cutoff_incl_rejects
+
+#After trying the above values the best cut off value  is 0.5148485
+dem_logistic_predicted_response_incl_rejects <- factor(ifelse(prediction_dem_logistic_incl_rejects >= dem_logistic_cutoff_incl_rejects, "1", "0"))
+
+dem_logistic_conf_final_incl_rejects <- confusionMatrix(factor(dem_logistic_predicted_response_incl_rejects), factor(dem_test_incl_rejects$Performance.Tag), positive = "1")
+dem_logistic_conf_final_incl_rejects
+
+#Accuracy     68.34 %
+#Sensitivity  62.38 %
+#Specificity  69.03 %
+
+
+# KS Statistics
+
+dem_logistic_pred_object_test_incl_rejects <- prediction(as.numeric(as.character(dem_logistic_predicted_response_incl_rejects)), as.numeric(as.character(dem_test_incl_rejects$Performance.Tag)))
+dem_logistic_performance_measures_test_incl_rejects <- performance(dem_logistic_pred_object_test_incl_rejects, "tpr", "fpr")  
