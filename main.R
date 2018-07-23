@@ -1466,17 +1466,3 @@ dem_logistic_cutoff_incl_rejects <- dem_logistic_cutoff_incl_rejects[length(dem_
 dem_logistic_cutoff_incl_rejects
 
 #After trying the above values the best cut off value  is 0.5148485
-dem_logistic_predicted_response_incl_rejects <- factor(ifelse(prediction_dem_logistic_incl_rejects >= dem_logistic_cutoff_incl_rejects, "1", "0"))
-
-dem_logistic_conf_final_incl_rejects <- confusionMatrix(factor(dem_logistic_predicted_response_incl_rejects), factor(dem_test_incl_rejects$Performance.Tag), positive = "1")
-dem_logistic_conf_final_incl_rejects
-
-#Accuracy     68.34 %
-#Sensitivity  62.38 %
-#Specificity  69.03 %
-
-
-# KS Statistics
-
-dem_logistic_pred_object_test_incl_rejects <- prediction(as.numeric(as.character(dem_logistic_predicted_response_incl_rejects)), as.numeric(as.character(dem_test_incl_rejects$Performance.Tag)))
-dem_logistic_performance_measures_test_incl_rejects <- performance(dem_logistic_pred_object_test_incl_rejects, "tpr", "fpr")  
