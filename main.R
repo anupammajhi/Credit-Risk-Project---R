@@ -1539,18 +1539,3 @@ dem_conf_tree
 
 #Accuracy       61.48%
 #Sensitivity    61.28%
-#Specificity    63.20%
-
-#Trying to find the optimal complexity parameter value.
-printcp(dem_tree)
-plotcp(dem_tree)
-
-# Setting the CP value, with least error
-
-bestcp <- dem_tree$cptable[which.min(dem_tree$cptable[,"xerror"]),"CP"]
-bestcp
-
-
-# Pruning the tree based on the CP value
-
-dem_tree_pruned <- prune(dem_tree, cp= bestcp)
