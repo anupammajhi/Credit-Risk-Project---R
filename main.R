@@ -1511,16 +1511,3 @@ lift <- function(labels,predicted_prob,groups=10){
 
 dem_logistic_default_decile_incl_rejects = lift(as.numeric(as.character(dem_test_incl_rejects$Performance.Tag)), as.numeric(as.character(dem_logistic_predicted_response_incl_rejects)), groups = 10)
 View(dem_logistic_default_decile_incl_rejects)  
-
-# K Fold - Cross Validation
-cv.binary(dem_logistic_model_final, nfolds = 100)
-# Internal estimate of accuracy = 0.789
-# Cross-validation estimate of accuracy = 0.789
-# We see that the accuracy is quite high after 100 folds, hence we conclude that the model is quite stable
-
-
-
-
-#==== DECISION TREE : DEMO DATA ====
-#     -------------------------
-
