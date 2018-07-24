@@ -1524,16 +1524,3 @@ cv.binary(dem_logistic_model_final, nfolds = 100)
 #==== DECISION TREE : DEMO DATA ====
 #     -------------------------
 
-
-dem_tree <- rpart(Performance.Tag ~ .,data = dem_train_smoted, method="class")
-summary(dem_tree)
-
-plot(dem_tree)
-text(dem_tree, pretty=2)
-
-dem_prediction_tree <- predict(dem_tree, dem_test_incl_rejects, type="class")
-
-
-dem_conf_tree <- confusionMatrix(factor(dem_prediction_tree), factor(dem_test_incl_rejects$Performance.Tag), positive = "0")
-dem_conf_tree
-
