@@ -1642,16 +1642,3 @@ dem_rf_tuned <- randomForest(Performance.Tag ~. , data = dem_train_smoted, mtry 
 
 # Predict response for test data
 
-dem_rf_pred_tuned <- predict(dem_rf_tuned, dem_test_incl_rejects, type = 'prob')
-
-# Cutoff for randomforest to assign yes or no
-
-perform_fn_rf <- function(cutoff) 
-{
-  predicted_response_rf_tuned <- as.factor(ifelse(dem_rf_pred_tuned[, 2] >= cutoff, "1", "0"))
-  conf <- confusionMatrix(predicted_response_rf_tuned, dem_test_incl_rejects$Performance.Tag, positive = "1")
-  acc <- conf$overall[1]
-  sens <- conf$byClass[1]
-  spec <- conf$byClass[2]
-  OUT_rf <- t(as.matrix(c(sens, spec, acc))) 
-  colnames(OUT_rf) <- c("sensitivity", "specificity", "accuracy")
