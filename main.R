@@ -1580,18 +1580,3 @@ rf <- randomForest(Performance.Tag ~. , data = dem_train_smoted,  ntree = 1000)
 
 
 prediction_rf <- predict(rf, dem_test_incl_rejects, type = 'class')
-
-
-confusionMatrix(prediction_rf, dem_test_incl_rejects$Performance.Tag, positive = "1")
-
-
-#Accuracy       61.48%
-#Sensitivity    63.20%
-#Specificity    61.28%
-
-
-
-# Tuning the RF
-# -------------
-
-
