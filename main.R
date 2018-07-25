@@ -1532,20 +1532,3 @@ plot(dem_tree)
 text(dem_tree, pretty=2)
 
 dem_prediction_tree <- predict(dem_tree, dem_test_incl_rejects, type="class")
-
-
-dem_conf_tree <- confusionMatrix(factor(dem_prediction_tree), factor(dem_test_incl_rejects$Performance.Tag), positive = "0")
-dem_conf_tree
-
-#Accuracy       61.48%
-#Sensitivity    61.28%
-#Specificity    63.20%
-
-#Trying to find the optimal complexity parameter value.
-printcp(dem_tree)
-plotcp(dem_tree)
-
-# Setting the CP value, with least error
-
-bestcp <- dem_tree$cptable[which.min(dem_tree$cptable[,"xerror"]),"CP"]
-bestcp
