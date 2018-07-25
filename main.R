@@ -1642,3 +1642,85 @@ dem_rf_tuned <- randomForest(Performance.Tag ~. , data = dem_train_smoted, mtry 
 
 # Predict response for test data
 
+dem_rf_pred_tuned <- predict(dem_rf_tuned, dem_test_incl_rejects, type = 'prob')
+
+# Cutoff for randomforest to assign yes or no
+
+perform_fn_rf <- function(cutoff) 
+{
+  predicted_response_rf_tuned <- as.factor(ifelse(dem_rf_pred_tuned[, 2] >= cutoff, "1", "0"))
+  conf <- confusionMatrix(predicted_response_rf_tuned, dem_test_incl_rejects$Performance.Tag, positive = "1")
+  acc <- conf$overall[1]
+  sens <- conf$byClass[1]
+  spec <- conf$byClass[2]
+  OUT_rf <- t(as.matrix(c(sens, spec, acc))) 
+  colnames(OUT_rf) <- c("sensitivity", "specificity", "accuracy")
+  return(OUT_rf)
+}
+
+
+# creating cutoff values from 0.01 to 0.99 for plotting and initialising a matrix of size 1000x4
+s = seq(.01,.99,length=100)
+
+OUT_rf = matrix(0,100,3)
+
+# calculate the sens, spec and acc for different cutoff values
+
+for(i in 1:100){
+  OUT_rf[i,] = perform_fn_rf(s[i])
+} 
+
+# Looking at the various cutoffs
+
+list <- as.data.frame(OUT_rf)
+colnames(list) <- c("Sensitivity", "Specificity", "Accuracy")
+
+
+# plotting cutoffs
+
+plot(s, OUT_rf[,1],xlab="Cutoff",ylab="Value",cex.lab=1.5,cex.axis=1.5,ylim=c(0,1),type="l",lwd=2,axes=FALSE,col=2)
+axis(1,seq(0,1,length=5),seq(0,1,length=5),cex.lab=1.5)
+axis(2,seq(0,1,length=5),seq(0,1,length=5),cex.lab=1.5)
+lines(s,OUT_rf[,2],col="darkgreen",lwd=2)
+lines(s,OUT_rf[,3],col=4,lwd=2)
+box()
+
+legend(0,.50,col=c(2,"darkgreen",4,"darkred"),lwd=c(2,2,2,2),c("Sensitivity","Specificity","Accuracy"))
+
+cutoff_rf <- s[which(abs(OUT_rf[,1]-OUT_rf[,2])<0.15)]
+cutoff_rf <- cutoff_rf[1]
+cutoff_rf
+
+
+predicted_response_rf_tuned <- factor(ifelse(dem_rf_pred_tuned[, 2] >= cutoff_rf, "1", "0"))
+
+conf_forest_dem <- confusionMatrix(predicted_response_rf_tuned, dem_test_incl_rejects$Performance.Tag, positive = "1")
+
+conf_forest_dem
+
+
+
+#Accuracy       58%
+#Sensitivity    70%
+#Specificity    56%
+
+# We have tremendously improved the Sensitivity
+
+
+# Model Metrics across all models for Demographic data
+
+models_dem <- as.data.frame(matrix(c(dem_logistic_conf_final_incl_rejects$byClass[1], dem_conf_tree_pruned$byClass[1], conf_forest_dem$byClass[1],
+                                     dem_logistic_conf_final_incl_rejects$byClass[2],dem_conf_tree_pruned$byClass[2],conf_forest_dem$byClass[2],
+                                     dem_logistic_conf_final_incl_rejects$overall[1],dem_conf_tree_pruned$overall[1], conf_forest_dem$overall[1]),nrow =3 ,ncol=3,byrow=TRUE))
+
+
+colnames(models_dem) <-  c( 'Logistic Regression', 'Decision Trees ', 'Random Forest')
+
+
+models_dem$Metrics <- c('Sensitivity','Specificity',  'Accuracy')
+
+kable(models_dem[,c(4,1,2,3)])
+
+# |Metrics     | Logistic Regression| Decision Trees | Random Forest|
+# |:-----------|-------------------:|---------------:|-------------:|
+# |Sensitivity |           0.6237581|       0.6319654|     0.6863931|
