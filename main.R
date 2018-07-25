@@ -1724,3 +1724,87 @@ kable(models_dem[,c(4,1,2,3)])
 # |Metrics     | Logistic Regression| Decision Trees | Random Forest|
 # |:-----------|-------------------:|---------------:|-------------:|
 # |Sensitivity |           0.6237581|       0.6319654|     0.6863931|
+# |Specificity |           0.6902907|       0.6127759|     0.5413545|
+# |Accuracy    |           0.6833953|       0.6147647|     0.5563863|
+
+
+# We have taken the liberty of building a scorecard with just the demographic data. 
+# The Results have been commented out
+# The Modelling of the combined dataset appears after this commented portion
+
+
+
+
+
+
+# #===========================================================
+# #               Application Scorecard
+# #============================================================
+
+# FORMULAE
+# --------
+
+#            _____________________________________________________
+#           | SCORE = OFFSET + FACTOR +LN(ODDS)                   |
+#           |                                                     |
+#           | SCORE + PDO = OFFSET + FACTOR + LN(2 * ODDS)        |
+#           |_____________________________________________________|
+
+
+#pdo<-20
+#pdo = Factor * ln (2)
+#Hence, Factor = pdo / ln (2)
+
+# fact<-20/log(2)
+# fact
+# offset<-400 -(28.8539 * log(10))
+# offset
+# #Running the fianl logistic regression model on the test set which did not have Performance.Tag as NA that is test_target_without_na
+# predictions_without_na<-predict(dem_logistic_model_final,dem_test, type = "response")
+# scorecard<-data.frame(P_Good=1-predictions_without_na)
+# library(dplyr)
+# scorecard<-mutate(scorecard, Odds_good = P_Good /(1-P_Good))
+# scorecard<-mutate(scorecard, ln_Odds = log(Odds_good))
+# scorecard$Original_Response<-dem_test$Performance.Tag
+# scorecard<-mutate(scorecard, Score = offset+(fact*ln_Odds))
+# 
+# summary(scorecard)
+# write.csv(scorecard,"scorecard.csv")
+# #After trial and error the optimal cut off was found to be at 330.
+# predicted<- factor(ifelse(scorecard$Score>330, "0", "1"))
+# scorecard$Predicted_Response<-predicted
+# conf_without_na<- confusionMatrix(factor(scorecard$Predicted_Response), factor(scorecard$Original_Response), positive = "0")
+# conf_without_na
+# 
+# #Accuracy :     68.78 %
+# #Sensitivity :  69.75 %         
+# #Specificity :  47.05 %
+# 
+# 
+# #Now creating for the records that were rejected during the first stage of screening, these were the ones which had
+# #Performance.Tag as na. So we shall see how well will the model perform with the cut off of 345 on the dataframe test_target_with_na.
+# 
+# predictions_final_only_na<-predict(dem_logistic_model_final,dem_rejects_woe, type = "response")
+# scorecard_Performance.Tag_na<-data.frame(P_Good=1-predictions_final_only_na)
+# scorecard_Performance.Tag_na<-mutate(scorecard_Performance.Tag_na, Odds_good = P_Good /(1-P_Good))
+# scorecard_Performance.Tag_na<-mutate(scorecard_Performance.Tag_na, ln_Odds = log(Odds_good))
+# scorecard_Performance.Tag_na$Original_Response <- 1
+# scorecard_Performance.Tag_na$Original_Response <- factor(as.numeric(as.character(scorecard_Performance.Tag_na$Original_Response)),levels = c(0,1))
+# scorecard_Performance.Tag_na<-mutate(scorecard_Performance.Tag_na, Score = offset+(fact*ln_Odds))
+# predicted_response_only_na<- factor(ifelse(scorecard_Performance.Tag_na$Score>=330, "0", "1"))
+# scorecard_Performance.Tag_na$Predicted_response<-predicted_response_only_na
+# conf_only_na<- confusionMatrix(predicted_response_only_na, scorecard_Performance.Tag_na$Original_Response, positive = "1")
+# conf_only_na
+# 
+# 
+# #Accuracy : 68.12 %
+# 
+# 
+# 
+# 
+# #==================================
+# # Assessing Financial Benefit
+# #==================================
+# 
+# 
+# dem_test_incl_rejects$probs <- predict(dem_logistic_model_final, dem_test_incl_rejects, type = "response")
