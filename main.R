@@ -1532,3 +1532,78 @@ plot(dem_tree)
 text(dem_tree, pretty=2)
 
 dem_prediction_tree <- predict(dem_tree, dem_test_incl_rejects, type="class")
+
+
+dem_conf_tree <- confusionMatrix(factor(dem_prediction_tree), factor(dem_test_incl_rejects$Performance.Tag), positive = "0")
+dem_conf_tree
+
+#Accuracy       61.48%
+#Sensitivity    61.28%
+#Specificity    63.20%
+
+#Trying to find the optimal complexity parameter value.
+printcp(dem_tree)
+plotcp(dem_tree)
+
+# Setting the CP value, with least error
+
+bestcp <- dem_tree$cptable[which.min(dem_tree$cptable[,"xerror"]),"CP"]
+bestcp
+
+
+# Pruning the tree based on the CP value
+
+dem_tree_pruned <- prune(dem_tree, cp= bestcp)
+
+plot(dem_tree_pruned)
+text(dem_tree_pruned, pretty=2)
+
+dem_prediction_tree_pruned <- predict(dem_tree_pruned, dem_test_incl_rejects, type="class")
+
+dem_conf_tree_pruned <- confusionMatrix(factor(dem_prediction_tree_pruned), factor(dem_test_incl_rejects$Performance.Tag), positive = "1")
+dem_conf_tree_pruned
+
+# We have improved the Sensitivity by Pruning.
+
+#Accuracy       61.48%
+#Sensitivity    63.20%
+#Specificity    61.28%
+
+
+
+
+#====Random Forest=====
+
+
+
+rf <- randomForest(Performance.Tag ~. , data = dem_train_smoted,  ntree = 1000)
+
+
+prediction_rf <- predict(rf, dem_test_incl_rejects, type = 'class')
+
+
+confusionMatrix(prediction_rf, dem_test_incl_rejects$Performance.Tag, positive = "1")
+
+
+#Accuracy       61.48%
+#Sensitivity    63.20%
+#Specificity    61.28%
+
+
+
+# Tuning the RF
+# -------------
+
+
+# Searching for optimal mtry. 
+# We will take ntree as 1000 in order to reduce system constraints
+
+
+
+# Grid Search
+
+control <- trainControl(method="repeatedcv", number=3, repeats=3, search="grid")
+metric <- "Accuracy"
+tunegrid <- expand.grid(.mtry=c(3:7))
+dem_rf_gridsearch <- train(Performance.Tag~., data=dem_train_smoted, method="rf", metric=metric, tuneGrid=tunegrid, trControl=control)
+print(dem_rf_gridsearch)
