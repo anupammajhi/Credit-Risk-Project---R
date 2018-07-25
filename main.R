@@ -1549,20 +1549,3 @@ plotcp(dem_tree)
 
 bestcp <- dem_tree$cptable[which.min(dem_tree$cptable[,"xerror"]),"CP"]
 bestcp
-
-
-# Pruning the tree based on the CP value
-
-dem_tree_pruned <- prune(dem_tree, cp= bestcp)
-
-plot(dem_tree_pruned)
-text(dem_tree_pruned, pretty=2)
-
-dem_prediction_tree_pruned <- predict(dem_tree_pruned, dem_test_incl_rejects, type="class")
-
-dem_conf_tree_pruned <- confusionMatrix(factor(dem_prediction_tree_pruned), factor(dem_test_incl_rejects$Performance.Tag), positive = "1")
-dem_conf_tree_pruned
-
-# We have improved the Sensitivity by Pruning.
-
-#Accuracy       61.48%
