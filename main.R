@@ -1566,17 +1566,3 @@ dem_conf_tree_pruned
 # We have improved the Sensitivity by Pruning.
 
 #Accuracy       61.48%
-#Sensitivity    63.20%
-#Specificity    61.28%
-
-
-
-
-#====Random Forest=====
-
-
-
-rf <- randomForest(Performance.Tag ~. , data = dem_train_smoted,  ntree = 1000)
-
-
-prediction_rf <- predict(rf, dem_test_incl_rejects, type = 'class')
