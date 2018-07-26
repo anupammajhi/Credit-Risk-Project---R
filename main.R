@@ -1779,16 +1779,3 @@ kable(models_dem[,c(4,1,2,3)])
 # #Accuracy :     68.78 %
 # #Sensitivity :  69.75 %         
 # #Specificity :  47.05 %
-# 
-# 
-# #Now creating for the records that were rejected during the first stage of screening, these were the ones which had
-# #Performance.Tag as na. So we shall see how well will the model perform with the cut off of 345 on the dataframe test_target_with_na.
-# 
-# predictions_final_only_na<-predict(dem_logistic_model_final,dem_rejects_woe, type = "response")
-# scorecard_Performance.Tag_na<-data.frame(P_Good=1-predictions_final_only_na)
-# scorecard_Performance.Tag_na<-mutate(scorecard_Performance.Tag_na, Odds_good = P_Good /(1-P_Good))
-# scorecard_Performance.Tag_na<-mutate(scorecard_Performance.Tag_na, ln_Odds = log(Odds_good))
-# scorecard_Performance.Tag_na$Original_Response <- 1
-# scorecard_Performance.Tag_na$Original_Response <- factor(as.numeric(as.character(scorecard_Performance.Tag_na$Original_Response)),levels = c(0,1))
-# scorecard_Performance.Tag_na<-mutate(scorecard_Performance.Tag_na, Score = offset+(fact*ln_Odds))
-# predicted_response_only_na<- factor(ifelse(scorecard_Performance.Tag_na$Score>=330, "0", "1"))
