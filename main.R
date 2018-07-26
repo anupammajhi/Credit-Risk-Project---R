@@ -1792,19 +1792,3 @@ kable(models_dem[,c(4,1,2,3)])
 # scorecard_Performance.Tag_na$Original_Response <- factor(as.numeric(as.character(scorecard_Performance.Tag_na$Original_Response)),levels = c(0,1))
 # scorecard_Performance.Tag_na<-mutate(scorecard_Performance.Tag_na, Score = offset+(fact*ln_Odds))
 # predicted_response_only_na<- factor(ifelse(scorecard_Performance.Tag_na$Score>=330, "0", "1"))
-# scorecard_Performance.Tag_na$Predicted_response<-predicted_response_only_na
-# conf_only_na<- confusionMatrix(predicted_response_only_na, scorecard_Performance.Tag_na$Original_Response, positive = "1")
-# conf_only_na
-# 
-# 
-# #Accuracy : 68.12 %
-# 
-# 
-# 
-# 
-# #==================================
-# # Assessing Financial Benefit
-# #==================================
-# 
-# 
-# dem_test_incl_rejects$probs <- predict(dem_logistic_model_final, dem_test_incl_rejects, type = "response")
