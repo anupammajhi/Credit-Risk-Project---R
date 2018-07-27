@@ -1896,3 +1896,71 @@ kable(models_dem[,c(4,1,2,3)])
 # Total_L <- L1+L2
 # Total_L
 # 
+# # Total Loss = 8,659,246,050
+# 
+# 
+# 
+# Fin_Benefit <- Total_R - Total_L
+# Fin_Benefit
+# 
+# # Financial Benefit = 10,240,477,589  (Gain)
+# #                     --------------
+
+
+
+
+
+#====================================================================================
+#                ANALYSING COMBINED DEMOGRAPHIC AND CREDIT BUREAU DATA
+#====================================================================================
+
+
+
+#==== LOGISTIC REGRESSION : COMBINED DEMO and BUREAU DATA ====
+
+full_logistic_model_1 <- glm(Performance.Tag ~.,
+                             data = full_train_smoted,
+                             family = 'binomial')
+
+summary(full_logistic_model_1)
+
+
+
+# we can see a lot of insignificant variables based on their p values
+
+# Hence, using bidirectional stepAIC to remove insignificant variables
+
+full_logistic_model_2 <- stepAIC(full_logistic_model_1, direction = "both")
+
+summary(full_logistic_model_2)
+
+
+# we will keep removing the insignificant variables which have very high p-value
+
+# Removing woe.No.of.times.60.DPD.or.worse.in.last.6.months.binned
+full_logistic_model_3 <- glm( Performance.Tag ~ woe.No.of.times.30.DPD.or.worse.in.last.6.months.binned +
+                                woe.No.of.times.30.DPD.or.worse.in.last.12.months.binned +
+                                woe.Avgas.CC.Utilization.in.last.12.months.binned +
+                                woe.No.of.PL.trades.opened.in.last.12.months.binned +
+                                woe.No.of.trades.opened.in.last.12.months.binned +
+                                woe.No.of.Inquiries.in.last.12.months..excluding.home...auto.loans..binned +
+                                woe.No.of.trades.opened.in.last.6.months.binned +
+                                woe.No.of.Inquiries.in.last.6.months..excluding.home...auto.loans..binned +
+                                woe.No.of.months.in.current.company.binned +
+                                woe.Presence.of.open.home.loan.binned +
+                                woe.No.of.dependents.binned +
+                                woe.Outstanding.Balance.binned,
+                              data = full_train_smoted,
+                              family = "binomial")
+
+summary(full_logistic_model_3)
+
+
+
+# Removing woe.No.of.trades.opened.in.last.6.months.binned
+full_logistic_model_4 <- glm( Performance.Tag ~ woe.No.of.times.30.DPD.or.worse.in.last.6.months.binned +
+                                woe.No.of.times.30.DPD.or.worse.in.last.12.months.binned +
+                                woe.Avgas.CC.Utilization.in.last.12.months.binned +
+                                woe.No.of.PL.trades.opened.in.last.12.months.binned +
+                                woe.No.of.trades.opened.in.last.12.months.binned +
+                                woe.No.of.Inquiries.in.last.12.months..excluding.home...auto.loans..binned +
