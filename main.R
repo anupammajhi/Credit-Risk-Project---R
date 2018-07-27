@@ -1840,3 +1840,59 @@ kable(models_dem[,c(4,1,2,3)])
 # 
 # # Assessing Benefit
 # 
+# 
+# # Revenue Gain 
+# 
+# #1 Correct Defaulters
+# 
+# correct_pred <- score_check[score_check$Performance.Tag == score_check$pred,]
+# 
+# correct_pred_def <- correct_pred[correct_pred$Performance.Tag == 1,]
+# 
+# R1 <- sum(correct_pred_def$Outstanding.Balance, na.rm =T)
+# R1
+# 
+# # Revenue Gain = 1,517,114,061
+# 
+# 
+# # 2 Correct Non Defaulters
+# 
+# correct_pred_non <- correct_pred[correct_pred$Performance.Tag == 0,]
+# 
+# R2 <- sum(correct_pred_non$Outstanding.Balance, na.rm =T)
+# R2
+# 
+# # Revenue Gain = 17,382,609,578
+# 
+# 
+# 
+# Total_R <- R1+R2
+# Total_R
+# 
+# # Total Revenue Gained = 18,899,723,639
+# #                        --------------
+# 
+# 
+# 
+# # Credit Loss
+# 
+# #1 
+# wrong_pred  <- score_check[score_check$Performance.Tag == 0 & score_check$pred == 1,]
+# L1 <- sum(wrong_pred$Outstanding.Balance, na.rm =T)
+# L1
+# 
+# # Loss = 7,536,346,714
+# 
+# 
+# # 2 Loss as a result of Model not picking the defaulters
+# 
+# wrong_pred_notpicked  <- score_check[score_check$Performance.Tag == 1 & score_check$pred == 0,]
+# L2 <- sum(wrong_pred_notpicked $Outstanding.Balance, na.rm =T)
+# L2
+# 
+# # Loss  = 1,122,899,336
+# 
+# 
+# Total_L <- L1+L2
+# Total_L
+# 
