@@ -1779,3 +1779,64 @@ kable(models_dem[,c(4,1,2,3)])
 # #Accuracy :     68.78 %
 # #Sensitivity :  69.75 %         
 # #Specificity :  47.05 %
+# 
+# 
+# #Now creating for the records that were rejected during the first stage of screening, these were the ones which had
+# #Performance.Tag as na. So we shall see how well will the model perform with the cut off of 345 on the dataframe test_target_with_na.
+# 
+# predictions_final_only_na<-predict(dem_logistic_model_final,dem_rejects_woe, type = "response")
+# scorecard_Performance.Tag_na<-data.frame(P_Good=1-predictions_final_only_na)
+# scorecard_Performance.Tag_na<-mutate(scorecard_Performance.Tag_na, Odds_good = P_Good /(1-P_Good))
+# scorecard_Performance.Tag_na<-mutate(scorecard_Performance.Tag_na, ln_Odds = log(Odds_good))
+# scorecard_Performance.Tag_na$Original_Response <- 1
+# scorecard_Performance.Tag_na$Original_Response <- factor(as.numeric(as.character(scorecard_Performance.Tag_na$Original_Response)),levels = c(0,1))
+# scorecard_Performance.Tag_na<-mutate(scorecard_Performance.Tag_na, Score = offset+(fact*ln_Odds))
+# predicted_response_only_na<- factor(ifelse(scorecard_Performance.Tag_na$Score>=330, "0", "1"))
+# scorecard_Performance.Tag_na$Predicted_response<-predicted_response_only_na
+# conf_only_na<- confusionMatrix(predicted_response_only_na, scorecard_Performance.Tag_na$Original_Response, positive = "1")
+# conf_only_na
+# 
+# 
+# #Accuracy : 68.12 %
+# 
+# 
+# 
+# 
+# #==================================
+# # Assessing Financial Benefit
+# #==================================
+# 
+# 
+# dem_test_incl_rejects$probs <- predict(dem_logistic_model_final, dem_test_incl_rejects, type = "response")
+# 
+# 
+# dem_test_incl_rejects$P_Good<- 1- dem_test_incl_rejects$probs
+# 
+# 
+# dem_test_incl_rejects <- mutate(dem_test_incl_rejects, Odds_good =  P_Good /(1-P_Good))
+# 
+# 
+# dem_test_incl_rejects<-mutate(dem_test_incl_rejects, Score = offset+(fact*log(Odds_good)))
+# 
+# 
+# # Using Our Score Cutoff of 330
+# 
+# dem_test_incl_rejects$pred <- factor(ifelse(dem_test_incl_rejects$Score > 330, "0", "1"))
+# 
+# confusionMatrix(dem_test_incl_rejects$pred, dem_test_incl_rejects$Performance.Tag, positive = "1")
+# 
+# # Accuracy :    68.74 %
+# # Sensitivity : 59.96 %        
+# # Specificity : 69.75 %
+# 
+# test_subset <- dem_test_incl_rejects[, c('Application.ID', 'pred')]
+# 
+# 
+# main_subset <- full_data[,c('Application.ID', 'Outstanding.Balance', 'Performance.Tag')]
+# 
+# 
+# score_check <- merge(test_subset, main_subset, by ="Application.ID")
+# 
+# 
+# # Assessing Benefit
+# 
