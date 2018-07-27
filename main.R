@@ -1951,16 +1951,3 @@ full_logistic_model_3 <- glm( Performance.Tag ~ woe.No.of.times.30.DPD.or.worse.
                                 woe.No.of.dependents.binned +
                                 woe.Outstanding.Balance.binned,
                               data = full_train_smoted,
-                              family = "binomial")
-
-summary(full_logistic_model_3)
-
-
-
-# Removing woe.No.of.trades.opened.in.last.6.months.binned
-full_logistic_model_4 <- glm( Performance.Tag ~ woe.No.of.times.30.DPD.or.worse.in.last.6.months.binned +
-                                woe.No.of.times.30.DPD.or.worse.in.last.12.months.binned +
-                                woe.Avgas.CC.Utilization.in.last.12.months.binned +
-                                woe.No.of.PL.trades.opened.in.last.12.months.binned +
-                                woe.No.of.trades.opened.in.last.12.months.binned +
-                                woe.No.of.Inquiries.in.last.12.months..excluding.home...auto.loans..binned +
