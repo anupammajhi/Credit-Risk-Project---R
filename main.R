@@ -2092,3 +2092,75 @@ full_logistic_model_11 <- glm( Performance.Tag ~ woe.No.of.times.30.DPD.or.worse
 
 summary(full_logistic_model_11)
 # AIC did not change, hence keeping the variable
+
+
+
+# Since all the variables are highly significant now, hence we will take this as final logistic model
+full_logistic_model_final <- full_logistic_model_11
+
+
+
+
+
+#==== MODEL EVALUATION : LOGISTIC REGRESSION : COMBINED DEMO and BUREAU DATA ====
+
+
+# Running the model on test data to see performance
+
+prediction_full_logistic <- predict(full_logistic_model_final, full_test, type = "response")
+
+# Finding out optimal cutoff
+full_logistic_perform_fn <- function(cutoff) 
+{
+  predicted_response <- ifelse(prediction_full_logistic >= cutoff, "1", "0")
+  test_results <- as.character(full_test$Performance.Tag)
+  conf <- confusionMatrix(factor(predicted_response), factor(full_test$Performance.Tag), positive = "1")
+  acc <- conf$overall[1]
+  sens <- conf$byClass[1]
+  spec <- conf$byClass[2]
+  out <- t(as.matrix(c(sens, spec, acc))) 
+  colnames(out) <- c("sensitivity", "specificity", "accuracy")
+  return(out)
+}
+
+# Creating cutoff values from 0.01 to 0.99 for plotting and initiallizing a matrix of 1000 X 4.
+
+full_logistic_s = seq(.01,.99,length=100)
+
+full_logistic_OUT = matrix(0,100,3)
+
+
+for(i in 1:100){
+  full_logistic_OUT[i,] = full_logistic_perform_fn(full_logistic_s[i])
+} 
+
+
+# plotting cutoffs 
+par(mfrow=c(1,1), mar=c(3,2,2,2)) 
+plot(full_logistic_s, full_logistic_OUT[,1],xlab="Cutoff",ylab="Value",cex.lab=1,cex.axis=1,ylim=c(0,1),type="l",lwd=2,axes=FALSE,col=2)
+axis(1,seq(0,1,length=5),seq(0,1,length=5),cex.lab=1)
+axis(2,seq(0,1,length=5),seq(0,1,length=5),cex.lab=1)
+lines(full_logistic_s,full_logistic_OUT[,2],col="darkgreen",lwd=2)
+lines(full_logistic_s,full_logistic_OUT[,3],col=4,lwd=2)
+box()
+legend(0,.50,col=c(2,"darkgreen",4,"darkred"),lwd=c(2,2,2,2),c("Sensitivity","Specificity","Accuracy"))
+
+
+full_logistic_cutoff <- full_logistic_s[which(abs(full_logistic_OUT[,1]-full_logistic_OUT[,2])<0.1)]  
+full_logistic_cutoff <- full_logistic_cutoff[length(full_logistic_cutoff)]
+full_logistic_cutoff
+
+#After trying the above values the best cut off value  is present in full_logistic_cutoff
+full_logistic_predicted_response <- factor(ifelse(prediction_full_logistic >= full_logistic_cutoff, "1", "0"))
+
+full_logistic_conf_final <- confusionMatrix(factor(full_logistic_predicted_response), factor(full_test$Performance.Tag), positive = "1")
+full_logistic_conf_final
+
+#Accuracy     0.6669
+#Sensitivity  0.57834
+#Specificity  0.67089
+
+
+# KS Statistics
+
+full_logistic_pred_object_test <- prediction(as.numeric(as.character(full_logistic_predicted_response)), as.numeric(as.character(full_test$Performance.Tag)))
