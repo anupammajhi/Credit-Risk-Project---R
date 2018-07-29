@@ -2164,3 +2164,74 @@ full_logistic_conf_final
 # KS Statistics
 
 full_logistic_pred_object_test <- prediction(as.numeric(as.character(full_logistic_predicted_response)), as.numeric(as.character(full_test$Performance.Tag)))
+full_logistic_performance_measures_test <- performance(full_logistic_pred_object_test, "tpr", "fpr")  
+
+full_logistic_ks_table_test <- attr(full_logistic_performance_measures_test, "y.values")[[1]] - 
+  (attr(full_logistic_performance_measures_test, "x.values")[[1]])
+
+max(full_logistic_ks_table_test)  # 0.2502978
+
+plot(full_logistic_performance_measures_test,main=paste0(' KS=',round(max(full_logistic_ks_table_test*100,1)),'%'), colorize = T)
+lines(x=c(0,1),y=c(0,1))
+
+# Area under the curve
+full_logistic_auc <- performance(full_logistic_pred_object_test, "auc")
+full_logistic_auc@y.values[[1]] # 0.6251489
+
+
+# Lift and Gain Chart
+
+full_logistic_performance_measures_test <- performance(full_logistic_pred_object_test, "lift", "rpp")
+plot(full_logistic_performance_measures_test)
+
+lift <- function(labels,predicted_prob,groups=10){
+  if(is.factor(labels)){labels <- as.integer(as.character(labels))}
+  if(is.factor(predicted_prob)){predicted_prob <- as.integer(as.character(predicted_prob))}
+  helper = data.frame(cbind(labels,predicted_prob))
+  helper[,"bucket"] = ntile(-helper[,"predicted_prob"],groups)
+  gaintable = helper %>% group_by(bucket) %>%
+    summarise_at(vars(labels ),funs(total = n(),totalresp=sum(., na.rm = TRUE))) %>%
+    mutate(Cumresp = cumsum(totalresp),Gain=Cumresp/sum(totalresp)*100,Cumlift=Gain/(bucket*(100/groups))) 
+  return(gaintable)
+}
+
+full_logistic_default_decile = lift(as.numeric(as.character(full_test$Performance.Tag)), as.numeric(as.character(full_logistic_predicted_response)), groups = 10)
+View(full_logistic_default_decile)  
+
+# K Fold - Cross Validation
+cv.binary(full_logistic_model_final, nfolds = 100)
+
+# We see that the accuracy remains consistent after 100 folds, hence we conclude that the model is quite stable
+
+
+
+
+
+
+
+# For Test data including rejected applications
+
+# Running the model on test data that includes rejected applications to see performance
+
+prediction_full_logistic_incl_rejects <- predict(full_logistic_model_final, full_test_incl_rejects, type = "response")
+
+# Finding out optimal cutoff
+full_logistic_perform_fn_incl_rejects <- function(cutoff) 
+{
+  predicted_response <- ifelse(prediction_full_logistic_incl_rejects >= cutoff, "1", "0")
+  test_results <- as.character(full_test_incl_rejects$Performance.Tag)
+  conf <- confusionMatrix(factor(predicted_response), factor(full_test_incl_rejects$Performance.Tag), positive = "1")
+  acc <- conf$overall[1]
+  sens <- conf$byClass[1]
+  spec <- conf$byClass[2]
+  out <- t(as.matrix(c(sens, spec, acc))) 
+  colnames(out) <- c("sensitivity", "specificity", "accuracy")
+  return(out)
+}
+
+# Creating cutoff values from 0.01 to 0.99 for plotting and initiallizing a matrix of 1000 X 4.
+
+full_logistic_s_incl_rejects = seq(.01,.99,length=100)
+
+full_logistic_OUT_incl_rejects = matrix(0,100,3)
+
