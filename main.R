@@ -2297,16 +2297,3 @@ lift <- function(labels,predicted_prob,groups=10){
   helper[,"bucket"] = ntile(-helper[,"predicted_prob"],groups)
   gaintable = helper %>% group_by(bucket) %>%
     summarise_at(vars(labels ),funs(total = n(),totalresp=sum(., na.rm = TRUE))) %>%
-    mutate(Cumresp = cumsum(totalresp),Gain=Cumresp/sum(totalresp)*100,Cumlift=Gain/(bucket*(100/groups))) 
-  return(gaintable)
-}
-
-full_logistic_default_decile_incl_rejects = lift(as.numeric(as.character(full_test_incl_rejects$Performance.Tag)), as.numeric(as.character(full_logistic_predicted_response_incl_rejects)), groups = 10)
-View(full_logistic_default_decile_incl_rejects)  
-
-# K Fold - Cross Validation
-cv.binary(full_logistic_model_final, nfolds = 100)
-
-# We see that the accuracy remains quite consistent after 100 folds, hence we conclude that the model is quite stable
-
-
