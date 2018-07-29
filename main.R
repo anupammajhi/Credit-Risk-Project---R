@@ -2235,3 +2235,78 @@ full_logistic_s_incl_rejects = seq(.01,.99,length=100)
 
 full_logistic_OUT_incl_rejects = matrix(0,100,3)
 
+
+for(i in 1:100){
+  full_logistic_OUT_incl_rejects[i,] = full_logistic_perform_fn_incl_rejects(full_logistic_s_incl_rejects[i])
+}
+
+
+# plotting cutoffs 
+par(mfrow=c(1,1), mar=c(3,2,2,2)) 
+plot(full_logistic_s_incl_rejects, full_logistic_OUT_incl_rejects[,1],xlab="Cutoff",ylab="Value",cex.lab=1,cex.axis=1,ylim=c(0,1),type="l",lwd=2,axes=FALSE,col=2)
+axis(1,seq(0,1,length=5),seq(0,1,length=5),cex.lab=1)
+axis(2,seq(0,1,length=5),seq(0,1,length=5),cex.lab=1)
+lines(full_logistic_s_incl_rejects,full_logistic_OUT_incl_rejects[,2],col="darkgreen",lwd=2)
+lines(full_logistic_s_incl_rejects,full_logistic_OUT_incl_rejects[,3],col=4,lwd=2)
+box()
+legend(0,.50,col=c(2,"darkgreen",4,"darkred"),lwd=c(2,2,2,2),c("Sensitivity","Specificity","Accuracy"))
+
+
+full_logistic_cutoff_incl_rejects <- full_logistic_s_incl_rejects[which(abs(full_logistic_OUT_incl_rejects[,1]-full_logistic_OUT_incl_rejects[,2])<0.1)]  
+full_logistic_cutoff_incl_rejects <- full_logistic_cutoff_incl_rejects[length(full_logistic_cutoff_incl_rejects)]
+full_logistic_cutoff_incl_rejects
+
+#After trying the above values the best cut off value  is present in full_logistic_cutoff_incl_rejects
+full_logistic_predicted_response_incl_rejects <- factor(ifelse(prediction_full_logistic_incl_rejects >= full_logistic_cutoff_incl_rejects, "1", "0"))
+
+full_logistic_conf_final_incl_rejects <- confusionMatrix(factor(full_logistic_predicted_response_incl_rejects), factor(full_test_incl_rejects$Performance.Tag), positive = "1")
+full_logistic_conf_final_incl_rejects
+
+#Accuracy     80.4 %
+#Sensitivity  72.5 %
+#Specificity  81.3 %
+
+
+# KS Statistics
+
+full_logistic_pred_object_test_incl_rejects <- prediction(as.numeric(as.character(full_logistic_predicted_response_incl_rejects)), as.numeric(as.character(full_test_incl_rejects$Performance.Tag)))
+full_logistic_performance_measures_test_incl_rejects <- performance(full_logistic_pred_object_test_incl_rejects, "tpr", "fpr")  
+
+full_logistic_ks_table_test_incl_rejects <- attr(full_logistic_performance_measures_test_incl_rejects, "y.values")[[1]] - 
+  (attr(full_logistic_performance_measures_test_incl_rejects, "x.values")[[1]])
+
+max(full_logistic_ks_table_test_incl_rejects)  # 0.5377652
+
+plot(full_logistic_performance_measures_test_incl_rejects,main=paste0(' KS=',round(max(full_logistic_ks_table_test_incl_rejects*100,1)),'%'), colorize = T)
+lines(x=c(0,1),y=c(0,1))
+
+# Area under the curve
+full_auc_incl_rejects <- performance(full_logistic_pred_object_test_incl_rejects, "auc")
+full_auc_incl_rejects@y.values[[1]] # 0.7688826
+
+
+# Lift and Gain Chart
+
+full_logistic_performance_measures_test_incl_rejects <- performance(full_logistic_pred_object_test_incl_rejects, "lift", "rpp")
+plot(full_logistic_performance_measures_test_incl_rejects)
+
+lift <- function(labels,predicted_prob,groups=10){
+  if(is.factor(labels)){labels <- as.integer(as.character(labels))}
+  if(is.factor(predicted_prob)){predicted_prob <- as.integer(as.character(predicted_prob))}
+  helper = data.frame(cbind(labels,predicted_prob))
+  helper[,"bucket"] = ntile(-helper[,"predicted_prob"],groups)
+  gaintable = helper %>% group_by(bucket) %>%
+    summarise_at(vars(labels ),funs(total = n(),totalresp=sum(., na.rm = TRUE))) %>%
+    mutate(Cumresp = cumsum(totalresp),Gain=Cumresp/sum(totalresp)*100,Cumlift=Gain/(bucket*(100/groups))) 
+  return(gaintable)
+}
+
+full_logistic_default_decile_incl_rejects = lift(as.numeric(as.character(full_test_incl_rejects$Performance.Tag)), as.numeric(as.character(full_logistic_predicted_response_incl_rejects)), groups = 10)
+View(full_logistic_default_decile_incl_rejects)  
+
+# K Fold - Cross Validation
+cv.binary(full_logistic_model_final, nfolds = 100)
+
+# We see that the accuracy remains quite consistent after 100 folds, hence we conclude that the model is quite stable
+
+
