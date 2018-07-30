@@ -2337,3 +2337,75 @@ full_conf_tree
 
 #Accuracy       67%
 #Sensitivity    66%
+#Specificity    71%
+
+#Trying to find the optimal complexity parameter value.
+printcp(full_tree)
+plotcp(full_tree)
+
+# Setting the CP value, with least error
+
+bestcp <- full_tree$cptable[which.min(full_tree$cptable[,"xerror"]),"CP"]
+bestcp
+
+
+# Pruning the tree based on the CP value
+
+full_tree_pruned <- prune(full_tree, cp= bestcp)
+
+plot(full_tree_pruned)
+text(full_tree_pruned, pretty=2)
+
+full_prediction_tree_pruned <- predict(full_tree_pruned, full_test_incl_rejects, type="class")
+
+full_conf_tree_pruned <- confusionMatrix(factor(full_prediction_tree_pruned), factor(full_test_incl_rejects$Performance.Tag), positive = "1")
+full_conf_tree_pruned
+
+# We have improved the Sensitivity by Pruning.
+
+#Accuracy       66%
+#Sensitivity    71%
+#Specificity    66%
+
+
+
+
+#====Random Forest=====
+
+
+
+rf <- randomForest(Performance.Tag ~. , data = full_train_smoted,  ntree = 1000)
+
+
+prediction_rf <- predict(rf, full_test_incl_rejects, type = 'class')
+
+
+confusionMatrix(prediction_rf, full_test_incl_rejects$Performance.Tag, positive = "1")
+
+
+#Accuracy       83.41%
+#Sensitivity    43.89%
+#Specificity    87.93%
+
+
+
+# Tuning the RF
+# -------------
+
+
+# Searching for optimal mtry. 
+# We will take ntree as 1000 in order to reduce system constraints
+
+
+
+# Grid Search
+
+control <- trainControl(method="repeatedcv", number=3, repeats=3, search="grid")
+metric <- "Accuracy"
+tunegrid <- expand.grid(.mtry=c(3:7))
+rf_gridsearch <- train(Performance.Tag~., data=full_train_smoted, method="rf", metric=metric, tuneGrid=tunegrid, trControl=control)
+print(rf_gridsearch)
+plot(rf_gridsearch)
+
+
+# Random Forest 
