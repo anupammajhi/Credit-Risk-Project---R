@@ -2337,17 +2337,3 @@ full_conf_tree
 
 #Accuracy       67%
 #Sensitivity    66%
-#Specificity    71%
-
-#Trying to find the optimal complexity parameter value.
-printcp(full_tree)
-plotcp(full_tree)
-
-# Setting the CP value, with least error
-
-bestcp <- full_tree$cptable[which.min(full_tree$cptable[,"xerror"]),"CP"]
-bestcp
-
-
-# Pruning the tree based on the CP value
-
