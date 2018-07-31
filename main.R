@@ -2522,18 +2522,3 @@ colnames(models) <-  c( 'Logistic Regression', 'Decision Trees ', 'Random Forest
 
 models$Metrics <- c('Sensitivity','Specificity',  'Accuracy')
 
-kable(models[,c(4,1,2,3)])
-
-# |Metrics     | Logistic Regression| Decision Trees | Random Forest|
-# |:-----------|-------------------:|---------------:|-------------:|
-# |Sensitivity |           0.7246946|       0.7129145|     0.6928447|
-# |Specificity |           0.8130706|       0.6614617|     0.6978798|
-# |Accuracy    |           0.8040023|       0.6667413|     0.6973631|
-
-
-
-
-#--------------------------------------------------------------------------------------------------
-
-
-
