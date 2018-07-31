@@ -2409,3 +2409,82 @@ plot(rf_gridsearch)
 
 
 # Random Forest 
+# 
+# 16408 samples
+# 20 predictor
+# 2 classes: '0', '1' 
+# 
+# No pre-processing
+# Resampling: Cross-Validated (3 fold, repeated 3 times) 
+# Summary of sample sizes: 10938, 10939, 10939, 10938, 10939, 10939, ... 
+# Resampling results across tuning parameters:
+#   
+#   mtry  Accuracy   Kappa    
+# 3     0.7784006  0.5573943
+# 4     0.8001787  0.6011101
+# 5     0.8107020  0.6221202
+# 6     0.8137493  0.6281729
+# 7     0.8138103  0.6282638
+# 
+# Accuracy was used to select the optimal model using the largest value.
+
+
+# The final value used for the model was mtry = 7.
+
+# Creating our final RF based on this mtry value.
+
+rf_tuned <- randomForest(Performance.Tag ~. , data = full_train_smoted, mtry = 7, ntree = 1000)
+
+
+
+# The next thing to do is set the correct cutoff after predicting
+
+
+# Predict response for test data
+
+rf_pred_tuned <- predict(rf_tuned, full_test_incl_rejects, type = 'prob')
+
+# Cutoff for randomforest to assign yes or no
+
+perform_fn_rf <- function(cutoff) 
+{
+  predicted_response_rf_tuned <- as.factor(ifelse(rf_pred_tuned[, 2] >= cutoff, "1", "0"))
+  conf <- confusionMatrix(predicted_response_rf_tuned, full_test_incl_rejects$Performance.Tag, positive = "1")
+  acc <- conf$overall[1]
+  sens <- conf$byClass[1]
+  spec <- conf$byClass[2]
+  OUT_rf <- t(as.matrix(c(sens, spec, acc))) 
+  colnames(OUT_rf) <- c("sensitivity", "specificity", "accuracy")
+  return(OUT_rf)
+}
+
+#---------------------------------------------------------    
+
+# creating cutoff values from 0.01 to 0.99 for plotting and initialising a matrix of size 1000x4
+s = seq(.01,.99,length=100)
+
+OUT_rf = matrix(0,100,3)
+
+# calculate the sens, spec and acc for different cutoff values
+
+for(i in 1:100){
+  OUT_rf[i,] = perform_fn_rf(s[i])
+} 
+
+# Looking at the various cutoffs
+
+list <- as.data.frame(OUT_rf)
+colnames(list) <- c("Sensitivity", "Specificity", "Accuracy")
+
+#---------------------------------------------------------    
+
+# plotting cutoffs
+
+plot(s, OUT_rf[,1],xlab="Cutoff",ylab="Value",cex.lab=1.5,cex.axis=1.5,ylim=c(0,1),type="l",lwd=2,axes=FALSE,col=2)
+axis(1,seq(0,1,length=5),seq(0,1,length=5),cex.lab=1.5)
+axis(2,seq(0,1,length=5),seq(0,1,length=5),cex.lab=1.5)
+lines(s,OUT_rf[,2],col="darkgreen",lwd=2)
+lines(s,OUT_rf[,3],col=4,lwd=2)
+box()
+
+legend(0,.50,col=c(2,"darkgreen",4,"darkred"),lwd=c(2,2,2,2),c("Sensitivity","Specificity","Accuracy"))
