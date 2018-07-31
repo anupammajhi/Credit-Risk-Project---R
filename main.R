@@ -2509,3 +2509,84 @@ conf_forest
 
 # We have tremendously improved the Sensitivity
 
+
+# Model Metrics across all models for Combined data
+
+models <- as.data.frame(matrix(c(full_logistic_conf_final_incl_rejects$byClass[1], full_conf_tree_pruned$byClass[1], conf_forest$byClass[1],
+                                 full_logistic_conf_final_incl_rejects$byClass[2],full_conf_tree_pruned$byClass[2],conf_forest$byClass[2],
+                                 full_logistic_conf_final_incl_rejects$overall[1],full_conf_tree_pruned$overall[1], conf_forest$overall[1]),nrow =3 ,ncol=3,byrow=TRUE))
+
+
+colnames(models) <-  c( 'Logistic Regression', 'Decision Trees ', 'Random Forest')
+
+
+models$Metrics <- c('Sensitivity','Specificity',  'Accuracy')
+
+kable(models[,c(4,1,2,3)])
+
+# |Metrics     | Logistic Regression| Decision Trees | Random Forest|
+# |:-----------|-------------------:|---------------:|-------------:|
+# |Sensitivity |           0.7246946|       0.7129145|     0.6928447|
+# |Specificity |           0.8130706|       0.6614617|     0.6978798|
+# |Accuracy    |           0.8040023|       0.6667413|     0.6973631|
+
+
+
+
+#--------------------------------------------------------------------------------------------------
+
+
+
+#               ===========================================================
+#                                 Application Scorecard
+#               ===========================================================
+
+
+
+# FORMULAE
+# --------
+
+#            _____________________________________________________
+#           | SCORE = OFFSET + FACTOR +LN(ODDS)                   |
+#           |                                                     |
+#           | SCORE + PDO = OFFSET + FACTOR + LN(2 * ODDS)        |
+#           |_____________________________________________________|
+
+
+pdo<-20
+#pdo = Factor * ln (2)
+#Hence Factor = pdo / ln (2)
+fact<-20/log(2)
+fact
+offset<-400 -(28.8539 * log(10))
+offset
+
+#Running the final logistic regression model on the test set which did not have Performance.Tag as NA that is test_target_without_na
+predictions_without_na<-predict(full_logistic_model_final,full_test, type = "response")
+scorecard<-data.frame(P_Good=1-predictions_without_na)
+scorecard<-mutate(scorecard, Odds_good = P_Good /(1-P_Good))
+scorecard<-mutate(scorecard, ln_Odds = log(Odds_good))
+scorecard$Original_Response<-full_test$Performance.Tag
+scorecard<-mutate(scorecard, Score = offset+(fact*ln_Odds))
+
+summary(scorecard)
+write.csv(scorecard,"scorecard.csv")
+#After trial and error the optimal cut off was found to be at 324.3.
+predicted<- factor(ifelse(scorecard$Score>324.3, "0", "1"))
+scorecard$Predicted_Response<-predicted
+conf_without_na<- confusionMatrix(factor(scorecard$Predicted_Response), factor(scorecard$Original_Response), positive = "0")
+conf_without_na
+
+#Accuracy :     71.63 %
+#Sensitivity :  72.54 %         
+#Specificity :  50.69 %
+
+
+#Now creating for the records that were rejected during the first stage of screening, these were the ones which had
+#Performance.Tag as na. So we shall see how well will the model perform with the cut off of 324.3 on the dataframe test_target_with_na.
+
+predictions_final_only_na<-predict(full_logistic_model_final,full_rejects_woe, type = "response")
+scorecard_Performance.Tag_na<-data.frame(P_Good=1-predictions_final_only_na)
+scorecard_Performance.Tag_na<-mutate(scorecard_Performance.Tag_na, Odds_good = P_Good /(1-P_Good))
+scorecard_Performance.Tag_na<-mutate(scorecard_Performance.Tag_na, ln_Odds = log(Odds_good))
+scorecard_Performance.Tag_na$Original_Response <- 1
