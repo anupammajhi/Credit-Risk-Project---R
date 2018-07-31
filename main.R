@@ -2590,3 +2590,72 @@ scorecard_Performance.Tag_na<-data.frame(P_Good=1-predictions_final_only_na)
 scorecard_Performance.Tag_na<-mutate(scorecard_Performance.Tag_na, Odds_good = P_Good /(1-P_Good))
 scorecard_Performance.Tag_na<-mutate(scorecard_Performance.Tag_na, ln_Odds = log(Odds_good))
 scorecard_Performance.Tag_na$Original_Response <- 1
+scorecard_Performance.Tag_na$Original_Response <- factor(as.numeric(as.character(scorecard_Performance.Tag_na$Original_Response)),levels = c(0,1))
+scorecard_Performance.Tag_na<-mutate(scorecard_Performance.Tag_na, Score = offset+(fact*ln_Odds))
+predicted_response_only_na<- factor(ifelse(scorecard_Performance.Tag_na$Score>=324.3, "0", "1"))
+scorecard_Performance.Tag_na$Predicted_response<-predicted_response_only_na
+conf_only_na<- confusionMatrix(predicted_response_only_na, scorecard_Performance.Tag_na$Original_Response, positive = "1")
+conf_only_na
+
+
+#Accuracy : 97.61 %
+
+
+# ------------------------------
+# REJECTION RATE O THE SCORECARD
+#-------------------------------
+
+summary(scorecard$Predicted_Response)
+
+total_rejections <- sum(as.numeric(as.character(scorecard$Predicted_Response)))
+rejection_rate <- total_rejections / nrow(scorecard)
+rejection_rate
+
+# 0.2842251
+
+# Thus,our model rejects about 30% of all applicants. It does remove a few good customers as well, but it ensures that the bank always remains profitable
+
+
+#------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+#==================================
+# Assessing Financial Benefit
+#==================================
+
+
+full_test_incl_rejects$probs <- predict(full_logistic_model_final, full_test_incl_rejects, type = "response")
+
+
+full_test_incl_rejects$P_Good<- 1- full_test_incl_rejects$probs
+
+
+full_test_incl_rejects <- mutate(full_test_incl_rejects, Odds_good =  P_Good /(1-P_Good))
+
+
+full_test_incl_rejects<-mutate(full_test_incl_rejects, Score = offset+(fact*log(Odds_good)))
+
+
+# Using Our Score Cutoff of 324.3
+
+full_test_incl_rejects$pred <- factor(ifelse(full_test_incl_rejects$Score > 324.3, "0", "1"))
+
+confusionMatrix(full_test_incl_rejects$pred, full_test_incl_rejects$Performance.Tag, positive = "1")
+
+# Accuracy :    73.29 %
+# Sensitivity : 79.84 %        
+# Specificity : 72.54 %
+
+test_subset <- full_test_incl_rejects[, c('Application.ID', 'pred')]
+
+
+main_subset <- full_data[,c('Application.ID', 'Outstanding.Balance', 'Performance.Tag')]
+
+
+score_check <- merge(test_subset, main_subset, by ="Application.ID")
+
+
+# Assessing Benefit
+#===================
+
+# We assume that the Outstanding Balance present in the dataset, represents total Exposure at Default.
