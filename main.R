@@ -2488,3 +2488,65 @@ lines(s,OUT_rf[,3],col=4,lwd=2)
 box()
 
 legend(0,.50,col=c(2,"darkgreen",4,"darkred"),lwd=c(2,2,2,2),c("Sensitivity","Specificity","Accuracy"))
+
+cutoff_rf <- s[which(abs(OUT_rf[,1]-OUT_rf[,2])<0.01)]
+cutoff_rf <- cutoff_rf[length(cutoff_rf)]
+cutoff_rf
+
+
+predicted_response_rf_tuned <- factor(ifelse(rf_pred_tuned[, 2] >= cutoff_rf, "1", "0"))
+
+conf_forest <- confusionMatrix(predicted_response_rf_tuned, full_test_incl_rejects$Performance.Tag, positive = "1")
+
+conf_forest
+
+
+
+#Accuracy       69.74%
+#Sensitivity    69.28%
+#Specificity    69.79%
+
+
+# We have tremendously improved the Sensitivity
+
+
+# Model Metrics across all models for Combined data
+
+models <- as.data.frame(matrix(c(full_logistic_conf_final_incl_rejects$byClass[1], full_conf_tree_pruned$byClass[1], conf_forest$byClass[1],
+                                 full_logistic_conf_final_incl_rejects$byClass[2],full_conf_tree_pruned$byClass[2],conf_forest$byClass[2],
+                                 full_logistic_conf_final_incl_rejects$overall[1],full_conf_tree_pruned$overall[1], conf_forest$overall[1]),nrow =3 ,ncol=3,byrow=TRUE))
+
+
+colnames(models) <-  c( 'Logistic Regression', 'Decision Trees ', 'Random Forest')
+
+
+models$Metrics <- c('Sensitivity','Specificity',  'Accuracy')
+
+kable(models[,c(4,1,2,3)])
+
+# |Metrics     | Logistic Regression| Decision Trees | Random Forest|
+# |:-----------|-------------------:|---------------:|-------------:|
+# |Sensitivity |           0.7246946|       0.7129145|     0.6928447|
+# |Specificity |           0.8130706|       0.6614617|     0.6978798|
+# |Accuracy    |           0.8040023|       0.6667413|     0.6973631|
+
+
+
+
+#--------------------------------------------------------------------------------------------------
+
+
+
+#               ===========================================================
+#                                 Application Scorecard
+#               ===========================================================
+
+
+
+# FORMULAE
+# --------
+
+#            _____________________________________________________
+#           | SCORE = OFFSET + FACTOR +LN(ODDS)                   |
+#           |                                                     |
+#           | SCORE + PDO = OFFSET + FACTOR + LN(2 * ODDS)        |
