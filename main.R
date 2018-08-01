@@ -2659,3 +2659,80 @@ score_check <- merge(test_subset, main_subset, by ="Application.ID")
 #===================
 
 # We assume that the Outstanding Balance present in the dataset, represents total Exposure at Default.
+# Thus, we can assess the benefit as follows,
+
+
+
+# Revenue Gain 
+# -------------
+
+
+#1. Correct Defaulters
+
+correct_pred <- score_check[score_check$Performance.Tag == score_check$pred,]
+
+correct_pred_def <- correct_pred[correct_pred$Performance.Tag == 1,]
+
+R1 <- sum(as.numeric(correct_pred_def$Outstanding.Balance), na.rm =T)
+R1
+
+# Revenue Gain = 1,959,451,598
+
+
+# 2 Correct Non Defaulters
+
+correct_pred_non <- correct_pred[correct_pred$Performance.Tag == 0,]
+
+R2 <- sum(as.numeric(correct_pred_non$Outstanding.Balance), na.rm =T)
+R2
+
+# Revenue Gain = 18,634,257,291
+
+
+
+Total_R <- R1+R2
+Total_R
+
+#  _______________________________________
+# |                                       |
+# | Total Revenue Gained = 20,593,708,889 |
+# |                        -------------- |
+# |_______________________________________|                      
+
+
+
+# Credit Loss
+
+# 1. Incorrect defaulters
+
+wrong_pred  <- score_check[score_check$Performance.Tag == 0 & score_check$pred == 1,]
+L1 <- sum(as.numeric(wrong_pred$Outstanding.Balance), na.rm =T)
+L1
+
+# Loss = 6,071,574,106
+
+
+# 2. Loss as a result of Model not picking the defaulters
+
+wrong_pred_notpicked  <- score_check[score_check$Performance.Tag == 1 & score_check$pred == 0,]
+L2 <- sum(as.numeric(wrong_pred_notpicked $Outstanding.Balance), na.rm =T)
+L2
+
+# Loss  = 626,429,652
+
+Total_L <- L1+L2
+Total_L
+
+# Total Loss = 6,698,003,758
+
+#  _____________________________________
+# |                                     |
+# | Total Credit Loss = 6,698,003,758   |
+# |                     --------------  |
+# |_____________________________________|                      
+
+
+
+
+
+
